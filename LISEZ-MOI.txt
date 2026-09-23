@@ -1,0 +1,50 @@
+METS - VERSION TABLETTE / TELEPHONE / ORDINATEUR
+
+Cette version s'installe comme une application et marche ensuite SANS internet.
+Elle a besoin d'internet une seule fois, pour la premiere ouverture.
+
+1) Mettre le dossier en ligne (une seule fois, par vous ou par la personne qui gere votre informatique)
+   Deposez tout le contenu de ce dossier sur un hebergement de sites gratuit
+   (Netlify, GitHub Pages, Cloudflare Pages...). Vous obtenez une adresse web.
+
+2) Installer sur chaque appareil (avec internet, une seule fois)
+   - iPad / iPhone : ouvrir l'adresse dans Safari > bouton Partager > "Sur l'ecran d'accueil"
+   - Android : ouvrir l'adresse dans Chrome > menu (3 points) > "Installer l'application"
+   - Ordinateur : ouvrir l'adresse dans Chrome ou Edge > icone d'installation dans la barre d'adresse
+
+3) Ensuite, ouvrir l'application depuis l'icone. Elle marche meme sans wifi.
+
+IMPORTANT
+- Les donnees restent sur chaque appareil. Deux tablettes n'ont donc pas les memes recettes.
+  Pour les transferer : Reglages > Sauvegarder maintenant, puis Restaurer une sauvegarde sur l'autre appareil.
+- Faites une sauvegarde reguliere (un rappel s'affiche apres 1 jour).
+
+NOUVEAU (version 6) - LISTE DE BASE D'INGREDIENTS
+- Onglet Ingredients > "Ajouter la liste de base" : 93 ingredients courants
+  (epicerie, matieres grasses, condiments, epices, laitiers, fruits et legumes,
+  viandes, poissons, oeufs) avec rendement, allergenes et prix HT.
+- Les ingredients que vous avez deja (meme nom) ne sont PAS modifies.
+- Les prix sont INDICATIFS (estimation, septembre 2026) : la mention
+  "Prix indicatif a verifier" disparait quand vous enregistrez l'ingredient
+  avec votre vrai prix.
+- Certains produits transformes (chocolat, moutarde, sauce soja, vinaigres...)
+  sont marques "Allergenes a verifier" : leur composition depend de la marque.
+- Avant de remplacer l'ancienne version : Reglages > Sauvegarder maintenant.
+
+NOUVEAU (version 7) - ETAPES, ORDRE DE TRAVAIL, USTENSILES, CONVERSIONS
+- Dans chaque recette, "Etapes de preparation" : pour chaque etape, le temps
+  de travail, le temps de cuisson ou de repos, les etapes a faire avant,
+  les ingredients utilises et les ustensiles.
+- "Ordre de travail" se calcule tout seul : ce qui cuit ou repose le plus
+  longtemps est lance en premier, le reste se fait pendant la cuisson.
+  Indiquez l'heure du service pour avoir les heures exactes.
+  En dessous : la mise en place dans l'ordre d'utilisation et le materiel.
+- Conversions : dans la fiche d'un ingredient, "Poids d'une piece" et
+  "Densite". Une recette peut alors etre ecrite en pieces, en grammes ou en
+  cuilleres (1 oeuf = 50 g, 1 c. a s. d'huile = 13,8 g...).
+- Jaune d'oeuf (20 g) et blanc d'oeuf (30 g) : comptes au prix du gramme
+  d'oeuf. Ils s'ajoutent avec "Ajouter la liste de base".
+- Onglet Ingredients > "Conversions" : tableau de l'oeuf, des mesures,
+  du four et de vos ingredients.
+- Les poids et densites de la liste de base sont des MOYENNES : pesez vos
+  produits et corrigez la fiche si besoin. Vos valeurs ne sont jamais ecrasees.
