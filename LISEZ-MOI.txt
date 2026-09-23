@@ -48,3 +48,10 @@ NOUVEAU (version 7) - ETAPES, ORDRE DE TRAVAIL, USTENSILES, CONVERSIONS
   du four et de vos ingredients.
 - Les poids et densites de la liste de base sont des MOYENNES : pesez vos
   produits et corrigez la fiche si besoin. Vos valeurs ne sont jamais ecrasees.
+
+CORRECTION (version 8) - BANDEAU DES EXEMPLES
+- "Supprimer les exemples" ne supprime plus que le Gratin dauphinois, la Pate
+  sablee et les ingredients d'exemple qui ne servent plus. Vos recettes et
+  vos ingredients sont conserves.
+- Nouveau bouton "Masquer ce message" : fait disparaitre le bandeau sans rien
+  supprimer.

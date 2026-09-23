@@ -961,7 +961,7 @@ function render(){
 /* --- Liste des recettes --- */
 function viewRecipes(){
   const list = [...state.recipes].sort((a,b)=>a.name.localeCompare(b.name,"fr"));
-  const notice = state.sample ? `<div class="notice no-print"><span>Ce sont des exemples pour vous montrer comment ça marche. Quand vous êtes prêt, supprimez-les et saisissez vos vraies recettes.</span><button class="btn small" data-a="clear-sample">Supprimer les exemples</button></div>` : "";
+  const notice = state.sample ? `<div class="notice no-print"><span>Les recettes « Gratin dauphinois » et « Pâte sablée » sont des exemples. Vous pouvez les supprimer : vos propres recettes et ingrédients sont conservés.</span><button class="btn small" data-a="clear-sample">Supprimer les exemples</button><button class="btn small ghost" data-a="hide-sample">Masquer ce message</button></div>` : "";
   const warn = memoryOnly ? `<div class="notice"><span>Ce navigateur bloque l'enregistrement : vos données seront perdues à la fermeture. Ouvrez le fichier avec Chrome ou Edge, et faites des sauvegardes (Réglages).</span></div>` : "";
   app.innerHTML = `
     <div class="page-head"><h2>Recettes</h2><button class="btn" data-a="new-recipe">+ Nouvelle recette</button>${list.length?`<button class="btn ghost no-print" data-a="pdf-all">Exporter tout en PDF</button>`:""}</div>
@@ -1329,7 +1329,11 @@ document.addEventListener("click", e=>{
     case "s-tool-del": { const st=r.steps.find(x=>x.id===el.dataset.s); st.tools.splice(Number(el.dataset.j),1); save(); refreshSteps(); break; }
     case "scale-reset": delete ui.target[r.id]; viewRecipe(); break;
     case "print": window.print(); break;
-    case "clear-sample": if(confirm("Supprimer les recettes et ingrédients d'exemple ?")){ const keep=state.ingredients.filter(i=>i.base); state=emptyData(); state.ingredients=keep; save(); render(); } break;
+    case "clear-sample": {
+      const n = removeSamples(true);
+      if(n===null) break;
+      save(); render(); toast(n?"Exemples supprimés. Vos données sont conservées.":"Aucun exemple à supprimer."); break; }
+    case "hide-sample": state.sample=false; save(); render(); toast("Message masqué"); break;
     case "add-base": { const n=addBaseList(); save(); render(); toast(n?`${n} ingrédient${n>1?"s":""} ajouté${n>1?"s":""}. Vérifiez les prix avec vos fournisseurs.`:"Tous les ingrédients de la liste sont déjà présents."); } break;
     case "hide-base": state.settings.baseHidden=true; save(); render(); break;
     case "new-ing": openIng(null); break;
@@ -1371,6 +1375,26 @@ document.addEventListener("input", e=>{
     case "set-fc": { const v=num(e.target.value); if(v>0&&v<100){ state.settings.targetFC=v; save(); } break; }
   }
 });
+
+/* Supprime UNIQUEMENT les exemples, jamais les données de l'utilisateur.
+   Les ingrédients d'exemple ne sont retirés que s'ils ne servent plus. */
+const SAMPLE_RECIPES = ["Gratin dauphinois","Pâte sablée"];
+const SAMPLE_INGS = ["Farine T55","Beurre","Œufs","Sucre","Lait entier","Crème liquide","Pommes de terre","Sel fin"];
+function removeSamples(ask){
+  const recs = state.recipes.filter(r=>SAMPLE_RECIPES.includes(r.name));
+  if(ask && !confirm(recs.length
+      ? `Supprimer ${recs.map(r=>"« "+r.name+" »").join(" et ")} ? Vos autres recettes et vos ingrédients utilisés sont conservés.`
+      : "Aucune recette d'exemple trouvée. Masquer simplement le message ?")) return null;
+  const gone = new Set(recs.map(r=>r.id));
+  state.recipes = state.recipes.filter(r=>!gone.has(r.id));
+  Object.keys(state.plan||{}).forEach(d=>{ state.plan[d]=state.plan[d].filter(p=>!gone.has(p.recipeId)); if(!state.plan[d].length) delete state.plan[d]; });
+  const used = new Set(state.recipes.flatMap(r=>r.lines.map(l=>l.ingId)));
+  const parents = new Set(state.ingredients.map(i=>i.from).filter(Boolean));
+  state.ingredients = state.ingredients.filter(i=>!(SAMPLE_INGS.includes(i.name) && !i.base && !used.has(i.id) && !parents.has(i.id)));
+  state.notebook = (state.notebook||[]).filter(x=>!(x.title==="Ceviche de dorade" && !x.recipeId && !(x.media||[]).length));
+  state.sample = false;
+  return recs.length;
+}
 
 /* Ajoute un ustensile à une étape (Entrée ou choix dans la liste) */
 function addTool(r, sid, value){
