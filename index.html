@@ -403,6 +403,7 @@ dialog:has(.mview){max-width:820px}
 .conv-t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .conv-t th{text-align:left;font-size:.78rem;color:var(--muted);padding:6px 10px 8px 0;white-space:nowrap}
 .conv-t td{padding:8px 10px 8px 0;border-top:1px solid var(--line);white-space:nowrap}
+.src-ok{color:var(--ok)}
 .linkbtn{border:0;background:none;padding:0;color:var(--brand);font:650 1rem var(--font);text-decoration:underline;text-underline-offset:3px;cursor:pointer;text-align:left}
 </style>
 </head>
@@ -506,123 +507,445 @@ function emptyData(){ return {sample:false,plan:{},notebook:[],settings:{currenc
    Rendement : part utilisable après préparation (épluchage, parures, os…).
    todo:1 = allergènes variables selon la marque, à vérifier sur l'étiquette.
    Format : [nom, prix, unité, rendement, allergènes, todo, autres noms reconnus] */
-const BASE_DATE = "2026-09";
-const BASE_GROUPS = [
- ["Épicerie sèche", [
-  ["Farine T45",1.10,"kg",100,["gluten"]],
-  ["Farine T55",0.95,"kg",100,["gluten"]],
-  ["Farine T65",1.05,"kg",100,["gluten"]],
-  ["Farine de maïs",2.50,"kg",100,[]],
-  ["Farine de riz",3.20,"kg",100,[]],
-  ["Farine de sarrasin",3.50,"kg",100,[],1],
-  ["Maïzena",4.00,"kg",100,[]],
-  ["Sucre semoule",1.20,"kg",100,[],0,["Sucre","Sucre en poudre"]],
-  ["Sucre glace",1.90,"kg",100,[]],
-  ["Cassonade",2.80,"kg",100,[]],
-  ["Miel",9.00,"kg",100,[]],
-  ["Cacao en poudre",12.00,"kg",100,[],0,["Cacao"]],
-  ["Chocolat noir",14.00,"kg",100,["soja"],1],
-  ["Chocolat au lait",14.00,"kg",100,["lait","soja"],1],
-  ["Chocolat blanc",15.00,"kg",100,["lait","soja"],1],
-  ["Levure chimique",8.00,"kg",100,[],1],
-  ["Levure boulangère fraîche",4.00,"kg",100,[],0,["Levure boulangère"]],
-  ["Gélatine en feuilles",45.00,"kg",100,[],0,["Gélatine"]],
-  ["Agar-agar",80.00,"kg",100,[]],
-  ["Riz",2.00,"kg",100,[]],
-  ["Semoule de blé",1.60,"kg",100,["gluten"],0,["Semoule"]],
-  ["Pâtes sèches",1.60,"kg",100,["gluten"],1,["Pâtes"]]
- ]],
- ["Matières grasses", [
-  ["Beurre doux",8.50,"kg",100,["lait"],0,["Beurre"]],
-  ["Beurre demi-sel",9.00,"kg",100,["lait"]],
-  ["Margarine",3.50,"kg",100,[],1],
-  ["Huile de tournesol",2.20,"L",100,[]],
-  ["Huile de colza",2.20,"L",100,[]],
-  ["Huile d'arachide",3.50,"L",100,["arachides"]],
-  ["Huile d'olive vierge extra",9.00,"L",100,[],0,["Huile d'olive"]],
-  ["Huile de noix",20.00,"L",100,["coques"]]
- ]],
- ["Condiments", [
-  ["Sel fin",0.60,"kg",100,[],0,["Sel"]],
-  ["Poivre noir moulu",25.00,"kg",100,[],0,["Poivre"]],
-  ["Moutarde de Dijon",3.50,"kg",100,["moutarde"],1,["Moutarde"]],
-  ["Vinaigre de vin",1.50,"L",100,["sulfites"],1],
-  ["Vinaigre balsamique",6.00,"L",100,["sulfites"],1],
-  ["Vinaigre de cidre",2.00,"L",100,["sulfites"],1],
-  ["Mayonnaise",4.50,"kg",100,["oeufs","moutarde"],1],
-  ["Ketchup",3.50,"kg",100,[],1],
-  ["Sauce soja",4.50,"L",100,["soja","gluten"],1],
-  ["Harissa",8.00,"kg",100,[],1],
-  ["Concentré de tomate",3.00,"kg",100,[]],
-  ["Cornichons (égouttés)",5.00,"kg",100,["sulfites"],1,["Cornichons"]],
-  ["Câpres (égouttées)",12.00,"kg",100,["sulfites"],1,["Câpres"]]
- ]],
- ["Épices et aromates", [
-  ["Paprika",18.00,"kg",100,[]],
-  ["Curry en poudre",16.00,"kg",100,["moutarde","celeri"],1,["Curry"]],
-  ["Cumin moulu",18.00,"kg",100,[],0,["Cumin"]],
-  ["Curcuma",15.00,"kg",100,[]],
-  ["Cannelle moulue",20.00,"kg",100,[],0,["Cannelle"]],
-  ["Noix de muscade",40.00,"kg",100,[],0,["Muscade"]],
-  ["Gingembre moulu",20.00,"kg",100,[],0,["Gingembre"]],
-  ["Thym frais (botte)",1.20,"pce",100,[],0,["Thym"]],
-  ["Romarin frais (botte)",1.20,"pce",100,[],0,["Romarin"]],
-  ["Origan séché",20.00,"kg",100,[],0,["Origan"]],
-  ["Laurier (feuilles séchées)",25.00,"kg",100,[],0,["Laurier"]],
-  ["Persil plat (botte)",0.90,"pce",100,[],0,["Persil"]],
-  ["Ciboulette (botte)",1.00,"pce",100,[],0,["Ciboulette"]],
-  ["Estragon (botte)",1.50,"pce",100,[],0,["Estragon"]]
- ]],
- ["Produits laitiers", [
-  ["Lait entier",1.05,"L",100,["lait"],0,["Lait"]],
-  ["Crème liquide 30 %",4.50,"L",100,["lait"],0,["Crème 30 %"]],
-  ["Crème liquide 35 %",5.20,"L",100,["lait"],0,["Crème 35 %","Crème liquide"]],
-  ["Fromage blanc",3.00,"kg",100,["lait"]],
-  ["Mascarpone",7.50,"kg",100,["lait"]],
-  ["Crème fraîche épaisse",5.00,"kg",100,["lait"],0,["Crème fraîche"]],
-  ["Parmesan",22.00,"kg",95,["lait"]],
-  ["Emmental",9.00,"kg",100,["lait"]],
-  ["Mozzarella",8.00,"kg",100,["lait"]],
-  ["Fromage de chèvre (bûche)",12.00,"kg",100,["lait"],0,["Chèvre"]]
- ]],
- ["Fruits et légumes", [
-  ["Oignon",1.20,"kg",90,[]],
-  ["Échalote",3.50,"kg",85,[]],
-  ["Ail",6.00,"kg",85,[]],
-  ["Carotte",1.10,"kg",85,[]],
-  ["Céleri branche",2.50,"kg",80,["celeri"],0,["Céleri"]],
-  ["Poireau",2.20,"kg",60,[]],
-  ["Tomate",2.50,"kg",95,[]],
-  ["Pommes de terre",1.30,"kg",80,[],0,["Pomme de terre"]],
-  ["Courgette",2.00,"kg",95,[]],
-  ["Aubergine",2.50,"kg",90,[]],
-  ["Poivron",3.50,"kg",80,[]],
-  ["Champignons de Paris",3.50,"kg",95,[],0,["Champignon","Champignons"]],
-  ["Citron",2.80,"kg",100,[]],
-  ["Orange",2.00,"kg",100,[]],
-  ["Pomme",2.00,"kg",85,[]],
-  ["Poire",2.50,"kg",85,[]]
- ]],
- ["Viandes, poissons et œufs", [
-  ["Poulet, filet",9.50,"kg",100,[],0,["Poulet"]],
-  ["Bœuf à braiser (paleron)",14.00,"kg",90,[],0,["Bœuf"]],
-  ["Porc, échine",7.50,"kg",90,[],0,["Porc"]],
-  ["Veau, épaule",18.00,"kg",85,[],0,["Veau"]],
-  ["Agneau, épaule",16.00,"kg",70,[],0,["Agneau"]],
-  ["Saumon, pavé",22.00,"kg",100,["poissons"],0,["Saumon"]],
-  ["Cabillaud, dos",25.00,"kg",100,["poissons"],0,["Cabillaud"]],
-  ["Thon albacore, longe",28.00,"kg",95,["poissons"],0,["Thon"]],
-  ["Crevettes crues entières",16.00,"kg",50,["crustaces"],0,["Crevettes"]],
-  ["Œufs",0.25,"pce",100,["oeufs"],0,["Œuf","Oeufs","Oeuf"]]
- ]]
-];
+const BASE_DATE = "2026-09-24";
+const BASE_GROUPS = [["Légumes",[["Artichaut",1.3,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":1}],
+["Asperge verte",0.25,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":2}],
+["Asperge blanche",0.4,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":3}],
+["Aubergine",2.2,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":4}],
+["Betterave rouge",1.5,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":5}],
+["Blette",2.8,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":6}],
+["Brocoli",2.8,"kg",65,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":7}],
+["Carotte",1,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":8}],
+["Céleri branche",2.2,"kg",80,["celeri"],0,["Céleri"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":9}],
+["Champignon de Paris",3.2,"kg",95,[],0,["Champignons de Paris","Champignon","Champignons"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":10}],
+["Chanterelle",18,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":11}],
+["Chou blanc",1.2,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":12}],
+["Chou rouge",1.4,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":13}],
+["Chou vert",1.6,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":14}],
+["Chou-fleur",2.2,"kg",60,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":15}],
+["Chou de Bruxelles",3,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":16}],
+["Chou kale",5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":17}],
+["Chou chinois",2,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":18}],
+["Chou romanesco",3,"kg",60,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":19}],
+["Concombre",0.8,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":20}],
+["Courgette",1.8,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":21}],
+["Courgette jaune",2.8,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":22}],
+["Courge butternut",1.6,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":23}],
+["Courge potimarron",1.8,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":24}],
+["Courge spaghetti",2,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":25}],
+["Échalote",3.2,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":26}],
+["Endive",2.4,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":27}],
+["Épinard",4,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":28}],
+["Fenouil",2.4,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":29}],
+["Haricot vert",4.5,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":30}],
+["Haricot beurre",5,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":31}],
+["Maïs doux",3,"kg",40,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":32}],
+["Navet",1.6,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":33}],
+["Oignon jaune",1,"kg",90,[],0,["Oignon"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":34}],
+["Oignon rouge",1.8,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":35}],
+["Oignon blanc",2.5,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":36}],
+["Oignon nouveau",3,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":37}],
+["Panais",2.2,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":38}],
+["Patate douce",2.4,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":39}],
+["Petit pois frais",5,"kg",40,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":40}],
+["Poireau",2,"kg",60,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":41}],
+["Poivron rouge",3.5,"kg",80,[],0,["Poivron"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":42}],
+["Poivron vert",2.8,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":43}],
+["Poivron jaune",3.8,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":44}],
+["Poivron orange",3.8,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":45}],
+["Pomme de terre",1,"kg",80,[],0,["Pommes de terre"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":46}],
+["Pomme de terre grenaille",2.2,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":47}],
+["Potiron",1.4,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":48}],
+["Radis rose",3.5,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":49}],
+["Radis noir",2.5,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":50}],
+["Rutabaga",1.8,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":51}],
+["Salsifis",5.5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":52}],
+["Tomate ronde",2.2,"kg",95,[],0,["Tomate"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":53}],
+["Tomate grappe",2.8,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":54}],
+["Tomate cerise",5.5,"kg",98,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":55}],
+["Tomate cœur de bœuf",4,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":56}],
+["Topinambour",3,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":57}],
+["Pois gourmand",8,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":58}],
+["Pois mange-tout",8,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":59}],
+["Girolle",18,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":60}],
+["Cèpe",25,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":61}],
+["Pleurote",8,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":62}],
+["Shiitaké",12,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":63}],
+["Morille",60,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":64}],
+["Champignon portobello",6,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":65}],
+["Trompette-de-la-mort",20,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":66}],
+["Enoki",10,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":67}],
+["Fève fraîche",4,"kg",30,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":68}],
+["Cardon",4.5,"kg",60,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":69}],
+["Crosne",16,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":70}],
+["Tétragone",8,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":71}],
+["Roquette",10,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":72}],
+["Mesclun",9,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":73}]]],
+["Fruits",[["Abricot",3.5,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":74}],
+["Ananas",2.2,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":75}],
+["Banane",1.4,"kg",65,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":76}],
+["Cassis",9,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":77}],
+["Cerise",7,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":78}],
+["Citron jaune",2.5,"kg",100,[],0,["Citron"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":79}],
+["Citron vert",3.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":80}],
+["Clémentine",2.5,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":81}],
+["Coing",3,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":82}],
+["Datte",7,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":83}],
+["Figue fraîche",7,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":84}],
+["Fraise",6.5,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":85}],
+["Framboise",14,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":86}],
+["Fruit de la passion",10,"kg",50,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":87}],
+["Grenade",3.5,"kg",55,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":88}],
+["Groseille",10,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":89}],
+["Kiwi vert",3,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":90}],
+["Kiwi jaune",5,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":91}],
+["Litchi",7,"kg",60,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":92}],
+["Mandarine",2.8,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":93}],
+["Mangue",8,"kg",70,[],0,[],{"k":"releve","d":"2026-09-23","s":"RNM FranceAgriMer, MIN de Nantes, cours grossiste : mangue import par avion","u":"https://reussir.fr/lesmarches/accord-ue-mercosur-quel-premier-bilan-des-echanges-agricoles-et-alimentaires","c":94}],
+["Melon",2,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":95}],
+["Mirabelle",5,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":96}],
+["Mûre",14,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":97}],
+["Myrtille",12,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":98}],
+["Nectarine",3,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":99}],
+["Orange",1.8,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":100}],
+["Pamplemousse",2.2,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":101}],
+["Pastèque",4,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":102}],
+["Pêche",3,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":103}],
+["Poire",2,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":104}],
+["Pomme",1.6,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":105}],
+["Prune",2.5,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":106}],
+["Raisin blanc",3.5,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":107}],
+["Raisin noir",3.5,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":108}],
+["Rhubarbe",4,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":109}],
+["Kumquat",9,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":110}],
+["Papaye",5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":111}],
+["Goyave",8,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":112}],
+["Carambole",8,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":113}],
+["Noix de coco fraîche",1.5,"pce",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":114}],
+["Physalis",20,"kg",95,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":115}],
+["Pomelo",2.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":116}],
+["Bergamote",8,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":117}],
+["Yuzu",40,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":118}]]],
+["Viandes",[["Bœuf paleron",13,"kg",100,[],0,["Bœuf à braiser (paleron)","Bœuf"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":119}],
+["Bœuf macreuse",13.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":120}],
+["Bœuf joue",14,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":121}],
+["Bœuf bavette",20,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":122}],
+["Bœuf rumsteck",24,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":123}],
+["Bœuf entrecôte",30,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":124}],
+["Bœuf faux-filet",30,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":125}],
+["Bœuf filet",50,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":126}],
+["Bœuf basse-côte",16,"kg",90,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":127}],
+["Bœuf tende de tranche",22,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":128}],
+["Bœuf jarret",12,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":129}],
+["Bœuf gîte",14,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":130}],
+["Bœuf queue",9,"kg",50,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":131}],
+["Bœuf côte",26,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":132}],
+["Bœuf onglet",26,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":133}],
+["Bœuf hampe",22,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":134}],
+["Bœuf steak haché",11,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":135}],
+["Veau noix",30,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":136}],
+["Veau quasi",26,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":137}],
+["Veau épaule",18,"kg",85,[],0,["Veau, épaule","Veau"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":138}],
+["Veau poitrine",12,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":139}],
+["Veau tendron",14,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":140}],
+["Veau jarret",14,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":141}],
+["Veau collier",15,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":142}],
+["Veau côte",28,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":143}],
+["Veau escalope",32,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":144}],
+["Agneau épaule",16,"kg",70,[],0,["Agneau, épaule","Agneau"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":145}],
+["Agneau gigot",18,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":146}],
+["Agneau selle",26,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":147}],
+["Agneau côtes",28,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":148}],
+["Agneau collier",14,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":149}],
+["Agneau poitrine",10,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":150}],
+["Agneau souris",20,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":151}],
+["Porc filet",9.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":152}],
+["Porc échine",7,"kg",100,[],0,["Porc, échine","Porc"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":153}],
+["Porc épaule",6,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":154}],
+["Porc poitrine",7,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":155}],
+["Porc travers",7.5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":156}],
+["Porc filet mignon",13,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":157}],
+["Porc côte",7.5,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":158}],
+["Porc jarret",5.5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":159}],
+["Porc palette",6.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":160}],
+["Porc joue",9,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":161}],
+["Porc gorge",5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":162}],
+["Porc haché",7,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":163}]]],
+["Volailles",[["Poulet entier",3.8,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":164}],
+["Blanc de poulet",9.5,"kg",100,[],0,["Poulet, filet","Poulet"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":165}],
+["Cuisse de poulet",4.5,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":166}],
+["Pilon de poulet",5,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":167}],
+["Aile de poulet",4,"kg",60,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":168}],
+["Poulet fermier",7,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":169}],
+["Suprême de poulet",12,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":170}],
+["Foie de poulet",5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":171}],
+["Dinde entière",5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":172}],
+["Escalope de dinde",10.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":173}],
+["Cuisse de dinde",5,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":174}],
+["Filet de dinde",10,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":175}],
+["Canard entier",7.4,"kg",65,[],0,[],{"k":"releve","d":"2026-09-18","s":"RNM FranceAgriMer, Rungis, cours grossiste : cane de Barbarie entière effilée, moins de 2 kg, France","u":"https://reussir.fr/lesmarches/accord-ue-mercosur-quel-premier-bilan-des-echanges-agricoles-et-alimentaires","c":176}],
+["Magret de canard",17,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":177}],
+["Cuisse de canard",9,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":178}],
+["Aiguillette de canard",16,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":179}],
+["Pintade",8.5,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":180}],
+["Caille",14,"kg",70,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":181}],
+["Lapin entier",10,"kg",75,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":182}],
+["Cuisses de lapin",13,"kg",80,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":183}]]],
+["Poissons",[["Saumon",10,"kg",60,["poissons"],0,["Saumon, pavé"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":184}],
+["Truite",8,"kg",50,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":185}],
+["Cabillaud",18,"kg",100,["poissons"],0,["Cabillaud, dos"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":186}],
+["Colin",14,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":187}],
+["Merlu",12,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":188}],
+["Lieu noir",11,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":189}],
+["Lieu jaune",18,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":190}],
+["Églefin",12,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":191}],
+["Sole",25,"kg",45,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":192}],
+["Turbot",25,"kg",40,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":193}],
+["Bar",11.5,"kg",45,["poissons"],0,[],{"k":"releve","d":"2026-09-23","s":"RNM FranceAgriMer, Rungis, cours grossiste : bar entier frais d'aquaculture 400-600 g, France","u":"https://reussir.fr/lesmarches/accord-ue-mercosur-quel-premier-bilan-des-echanges-agricoles-et-alimentaires","c":194}],
+["Dorade royale",11.5,"kg",45,["poissons"],0,[],{"k":"releve","d":"2026-09-23","s":"RNM FranceAgriMer, Rungis, cours grossiste : daurade royale d'aquaculture 800-1000 g, UE","u":"https://reussir.fr/lesmarches/accord-ue-mercosur-quel-premier-bilan-des-echanges-agricoles-et-alimentaires","c":195}],
+["Dorade grise",12,"kg",45,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":196}],
+["Maquereau",5,"kg",55,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":197}],
+["Sardine",5,"kg",55,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":198}],
+["Anchois",6,"kg",55,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":199}],
+["Thon",22,"kg",95,["poissons"],0,["Thon albacore, longe"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":200}],
+["Espadon",16,"kg",70,["poissons"],0,[],{"k":"releve","d":"2026-09-23","s":"RNM FranceAgriMer, Rungis, cours grossiste : espadon entier, Atlantique","u":"https://reussir.fr/lesmarches/accord-ue-mercosur-quel-premier-bilan-des-echanges-agricoles-et-alimentaires","c":201}],
+["Rouget",15,"kg",45,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":202}],
+["Saint-Pierre",25,"kg",35,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":203}],
+["Raie",12,"kg",70,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":204}],
+["Rascasse",18,"kg",35,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":205}],
+["Lotte",20,"kg",50,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":206}],
+["Congre",7,"kg",60,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":207}],
+["Anguille",25,"kg",60,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":208}],
+["Mulet",6,"kg",45,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":209}],
+["Merlan",8,"kg",45,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":210}],
+["Vive",10,"kg",40,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":211}],
+["Grondin",7,"kg",35,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":212}],
+["Hareng",5,"kg",55,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":213}],
+["Flétan",20,"kg",60,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":214}],
+["Hoki",10,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":215}],
+["Pangasius",6,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":216}],
+["Truite fumée",30,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":217}],
+["Saumon fumé",30,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":218}],
+["Morue salée",18,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":219}],
+["Haddock",20,"kg",100,["poissons"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":220}]]],
+["Crustacés et fruits de mer",[["Crevette rose",14,"kg",45,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":221}],
+["Crevette grise",25,"kg",40,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":222}],
+["Gambas",16,"kg",45,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":223}],
+["Langoustine",30,"kg",35,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":224}],
+["Langouste",60,"kg",35,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":225}],
+["Homard",40,"kg",35,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":226}],
+["Crabe",8,"kg",30,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":227}],
+["Tourteau",9,"kg",30,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":228}],
+["Araignée de mer",10,"kg",30,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":229}],
+["Écrevisse",25,"kg",20,["crustaces"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":230}],
+["Moule",3,"kg",30,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":231}],
+["Huître",7,"kg",15,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":232}],
+["Coque",6,"kg",20,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":233}],
+["Palourde",14,"kg",25,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":234}],
+["Praire",12,"kg",25,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":235}],
+["Saint-Jacques",45,"kg",100,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":236}],
+["Calmar",10,"kg",80,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":237}],
+["Encornet",12,"kg",80,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":238}],
+["Poulpe",14,"kg",70,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":239}],
+["Seiche",10,"kg",60,["mollusques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":240}]]],
+["Produits laitiers",[["Lait entier",1.05,"L",100,["lait"],0,["Lait"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":241}],
+["Lait demi-écrémé",0.95,"L",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":242}],
+["Lait écrémé",0.9,"L",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":243}],
+["Lait de chèvre",2.5,"L",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":244}],
+["Lait de brebis",3,"L",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":245}],
+["Crème liquide 30 %",4.5,"L",100,["lait"],0,["Crème 30 %"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":246}],
+["Crème liquide 35 %",5.2,"L",100,["lait"],0,["Crème 35 %","Crème liquide"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":247}],
+["Crème épaisse",5,"L",100,["lait"],0,["Crème fraîche épaisse"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":248}],
+["Crème fraîche",4.8,"L",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":249}],
+["Crème légère",3.5,"L",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":250}],
+["Beurre doux",8.5,"kg",100,["lait"],0,["Beurre"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":251}],
+["Beurre demi-sel",9,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":252}],
+["Beurre clarifié",16,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":253}],
+["Yaourt nature",2.5,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":254}],
+["Yaourt grec",5,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":255}],
+["Yaourt brassé",2.8,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":256}],
+["Fromage blanc",3,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":257}],
+["Faisselle",3.5,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":258}],
+["Mascarpone",7.5,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":259}],
+["Ricotta",8,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":260}],
+["Crème liquide végétale",4,"L",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":261}],
+["Lait de coco",4,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":262}],
+["Lait d'amande",2.8,"L",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":263}],
+["Lait d'avoine",2,"L",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":264}],
+["Lait de soja",1.8,"L",100,["soja"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":265}]]],
+["Œufs",[["Œuf de poule",4.2,"kg",88,["oeufs"],0,["Œufs","Oeufs","Œuf","Oeuf"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":266}],
+["Œuf de caille",12,"kg",85,["oeufs"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":267}],
+["Jaune d'œuf liquide (ovoproduit)",9,"kg",100,["oeufs"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":268}],
+["Blanc d'œuf liquide (ovoproduit)",4,"kg",100,["oeufs"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":269}],
+["Œuf liquide pasteurisé",4.5,"kg",100,["oeufs"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":270}]]],
+["Céréales et féculents",[["Riz basmati",3,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":271}],
+["Riz thaï",2.6,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":272}],
+["Riz rond",1.8,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":273}],
+["Riz long grain",1.6,"kg",100,[],0,["Riz"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":274}],
+["Riz complet",2.6,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":275}],
+["Riz arborio",3.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":276}],
+["Riz carnaroli",5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":277}],
+["Riz sauvage",14,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":278}],
+["Riz noir",7,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":279}],
+["Riz rouge",6,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":280}],
+["Semoule de blé",1.6,"kg",100,["gluten"],0,["Semoule"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":281}],
+["Semoule fine",1.6,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":282}],
+["Semoule moyenne",1.6,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":283}],
+["Boulgour",2.6,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":284}],
+["Quinoa",6,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":285}],
+["Polenta",2.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":286}],
+["Maïs en semoule",2.2,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":287}],
+["Couscous",1.8,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":288}],
+["Orge perlé",2.5,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":289}],
+["Épeautre",4,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":290}],
+["Blé précuit",2.6,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":291}],
+["Avoine",2,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":292}],
+["Flocons d'avoine",2.2,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":293}],
+["Millet",3.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":294}],
+["Sarrasin",4,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":295}],
+["Pâtes spaghetti",1.5,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":296}],
+["Pâtes penne",1.5,"kg",100,["gluten"],1,["Pâtes sèches","Pâtes"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":297}],
+["Pâtes fusilli",1.5,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":298}],
+["Pâtes tagliatelles",2.5,"kg",100,["gluten","oeufs"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":299}],
+["Pâtes linguine",1.6,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":300}],
+["Pâtes macaroni",1.5,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":301}],
+["Pâtes lasagnes",2.2,"kg",100,["gluten","oeufs"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":302}],
+["Vermicelles",2,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":303}],
+["Nouilles de blé",3.5,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":304}],
+["Nouilles de riz",4,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":305}]]],
+["Légumineuses",[["Lentilles vertes",3,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":306}],
+["Lentilles blondes",2.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":307}],
+["Lentilles corail",3,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":308}],
+["Lentilles noires",5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":309}],
+["Pois chiches secs",2.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":310}],
+["Pois chiches cuits",2.2,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":311}],
+["Haricots blancs",3,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":312}],
+["Haricots rouges",3,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":313}],
+["Haricots noirs",4,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":314}],
+["Haricots flageolets",4.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":315}],
+["Haricots coco",5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":316}],
+["Pois cassés",2.2,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":317}],
+["Fèves sèches",4,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":318}],
+["Soja jaune",3.5,"kg",100,["soja"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":319}],
+["Edamame",6,"kg",100,["soja"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":320}]]],
+["Huiles et matières grasses",[["Huile d'olive",9,"L",100,[],0,["Huile d'olive vierge extra"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":321}],
+["Huile de tournesol",2.2,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":322}],
+["Huile de colza",2.2,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":323}],
+["Huile d'arachide",3.5,"L",100,["arachides"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":324}],
+["Huile de maïs",3,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":325}],
+["Huile de pépins de raisin",5,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":326}],
+["Huile de noix",20,"L",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":327}],
+["Huile de noisette",25,"L",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":328}],
+["Huile de sésame",12,"L",100,["sesame"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":329}],
+["Huile de coco",10,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":330}],
+["Huile d'avocat",20,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":331}],
+["Huile de soja",3,"L",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":332}],
+["Graisse de canard",7,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":333}],
+["Saindoux",4,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":334}],
+["Margarine",3.5,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":335}]]],
+["Vinaigres",[["Vinaigre de vin rouge",1.5,"L",100,["sulfites"],0,["Vinaigre de vin"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":336}],
+["Vinaigre de vin blanc",1.5,"L",100,["sulfites"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":337}],
+["Vinaigre balsamique",6,"L",100,["sulfites"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":338}],
+["Vinaigre de cidre",2,"L",100,["sulfites"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":339}],
+["Vinaigre de Xérès",6,"L",100,["sulfites"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":340}],
+["Vinaigre de riz",5,"L",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":341}],
+["Vinaigre de malt",4,"L",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":342}],
+["Vinaigre de framboise",8,"L",100,["sulfites"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":343}],
+["Vinaigre de champagne",8,"L",100,["sulfites"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":344}],
+["Vinaigre de bière",5,"L",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":345}]]],
+["Condiments et sauces",[["Moutarde de Dijon",3.5,"kg",100,["moutarde","sulfites"],1,["Moutarde"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":346}],
+["Moutarde à l'ancienne",5,"kg",100,["moutarde","sulfites"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":347}],
+["Moutarde forte",3.5,"kg",100,["moutarde","sulfites"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":348}],
+["Ketchup",3.5,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":349}],
+["Mayonnaise",4.5,"kg",100,["moutarde","oeufs"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":350}],
+["Sauce soja",4.5,"kg",100,["gluten","soja"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":351}],
+["Sauce teriyaki",8,"kg",100,["gluten","soja"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":352}],
+["Sauce Worcestershire",10,"kg",100,["gluten","poissons","sulfites"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":353}],
+["Sauce huître",7,"kg",100,["gluten","mollusques","soja"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":354}],
+["Sauce nuoc-mâm",6,"kg",100,["poissons"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":355}],
+["Tabasco",30,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":356}],
+["Harissa",8,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":357}],
+["Pesto vert",15,"kg",100,["lait"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":358}],
+["Pesto rouge",15,"kg",100,["lait"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":359}],
+["Tapenade noire",16,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":360}],
+["Tapenade verte",16,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":361}],
+["Cornichons",5,"kg",100,["sulfites"],1,["Cornichons (égouttés)"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":362}],
+["Câpres",12,"kg",100,["sulfites"],1,["Câpres (égouttées)"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":363}],
+["Olives vertes",7,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":364}],
+["Olives noires",7,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":365}]]],
+["Boulangerie et pâtisserie",[["Farine T45",1.1,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":366}],
+["Farine T55",0.95,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":367}],
+["Farine T65",1.05,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":368}],
+["Farine complète T150",1.5,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":369}],
+["Farine de seigle",1.8,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":370}],
+["Farine d'épeautre",3.5,"kg",100,["gluten"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":371}],
+["Farine de maïs",2.5,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":372}],
+["Farine de riz",3.2,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":373}],
+["Levure fraîche",4,"kg",100,[],0,["Levure boulangère fraîche","Levure boulangère"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":374}],
+["Levure sèche",15,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":375}],
+["Levure chimique",8,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":376}],
+["Bicarbonate alimentaire",4,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":377}],
+["Chapelure",3,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":378}],
+["Panko",6,"kg",100,["gluten"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":379}],
+["Fécule de maïs",4,"kg",100,[],0,["Maïzena"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":380}]]],
+["Fruits secs et graines",[["Amande",12,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":381}],
+["Noisette",13,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":382}],
+["Noix",14,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":383}],
+["Noix de cajou",13,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":384}],
+["Pistache",30,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":385}],
+["Noix de pécan",22,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":386}],
+["Noix de macadamia",30,"kg",100,["coques"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":387}],
+["Graines de sésame",6,"kg",100,["sesame"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":388}],
+["Graines de tournesol",4,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":389}],
+["Graines de courge",10,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":390}]]],
+["Sucre et produits sucrants",[["Sucre blanc",1.2,"kg",100,[],0,["Sucre semoule","Sucre","Sucre en poudre"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":391}],
+["Sucre roux",2.2,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":392}],
+["Cassonade",2.8,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":393}],
+["Sucre glace",1.9,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":394}],
+["Sucre muscovado",7,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":395}],
+["Miel d'acacia",12,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":396}],
+["Miel de fleurs",8,"kg",100,[],0,["Miel"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":397}],
+["Sirop d'érable",20,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":398}],
+["Sirop d'agave",10,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":399}],
+["Mélasse",6,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/","c":400}]]],
+["Épicerie et divers",[["Farine de sarrasin",3.5,"kg",100,[],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Cacao en poudre",12,"kg",100,[],0,["Cacao"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Chocolat noir",14,"kg",100,["soja"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Chocolat au lait",14,"kg",100,["lait","soja"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Chocolat blanc",15,"kg",100,["lait","soja"],1,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Gélatine en feuilles",45,"kg",100,[],0,["Gélatine"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Agar-agar",80,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Sel fin",0.6,"kg",100,[],0,["Sel"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Poivre noir moulu",25,"kg",100,[],0,["Poivre"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Concentré de tomate",3,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Crevettes crues entières",16,"kg",50,["crustaces"],0,["Crevettes"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}]]],
+["Épices et aromates",[["Paprika",18,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Curry en poudre",16,"kg",100,["moutarde","celeri"],1,["Curry"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Cumin moulu",18,"kg",100,[],0,["Cumin"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Curcuma",15,"kg",100,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Cannelle moulue",20,"kg",100,[],0,["Cannelle"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Noix de muscade",40,"kg",100,[],0,["Muscade"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Gingembre moulu",20,"kg",100,[],0,["Gingembre"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Thym frais (botte)",1.2,"pce",100,[],0,["Thym"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Romarin frais (botte)",1.2,"pce",100,[],0,["Romarin"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Origan séché",20,"kg",100,[],0,["Origan"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Laurier (feuilles séchées)",25,"kg",100,[],0,["Laurier"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Persil plat (botte)",0.9,"pce",100,[],0,["Persil"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Ciboulette (botte)",1,"pce",100,[],0,["Ciboulette"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Estragon (botte)",1.5,"pce",100,[],0,["Estragon"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}]]],
+["Fromages",[["Parmesan",22,"kg",95,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Emmental",9,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Mozzarella",8,"kg",100,["lait"],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}],
+["Fromage de chèvre (bûche)",12,"kg",100,["lait"],0,["Chèvre"],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}]]],
+["Fruits et légumes divers",[["Ail",6,"kg",85,[],0,[],{"k":"estim","d":"2026-09-24","s":"Estimation ","u":"https://rnm.franceagrimer.fr/"}]]]];
+
 const normName = s => String(s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/œ/g,"oe").replace(/[^a-z0-9%]+/g," ").trim();
 function baseMissing(){
   const have = new Set(state.ingredients.map(i=>normName(i.name)));
   const out = [];
-  BASE_GROUPS.forEach(([group,items])=>items.forEach(([name,price,unit,yld,al,todo,aliases])=>{
+  BASE_GROUPS.forEach(([group,items])=>items.forEach(([name,price,unit,yld,al,todo,aliases,src])=>{
     const names=[name,...(aliases||[])].map(normName);
-    if(!names.some(n=>have.has(n))) out.push({group,name,price,unit,yld,al,todo});
+    if(!names.some(n=>have.has(n))) out.push({group,name,price,unit,yld,al,todo,src});
   }));
   BASE_DERIVED.forEach(d=>{ if(![d.name,...d.aliases].map(normName).some(n=>have.has(n))) out.push({group:"Viandes, poissons et œufs",name:d.name,derived:d}); });
   return out;
@@ -630,7 +953,9 @@ function baseMissing(){
 function addBaseList(){
   const miss = baseMissing();
   miss.filter(b=>!b.derived).forEach(b=>{
-    const it={id:uid(),name:b.name,price:b.price,priceUnit:b.unit,yield:b.yld,supplier:"",allergens:[...b.al],base:true,estimate:BASE_DATE,category:b.group};
+    const it={id:uid(),name:b.name,price:b.price,priceUnit:b.unit,yield:b.yld,supplier:"",allergens:[...b.al],base:true,category:b.group};
+    if(b.src){ it.priceKind=b.src.k; it.priceDate=b.src.d; it.priceSource=b.src.s; if(b.src.u) it.priceUrl=b.src.u; if(b.src.c) it.catalogId=b.src.c; }
+    if(!b.src || b.src.k==="estim") it.estimate=BASE_DATE;
     if(b.todo) it.todo=true;
     state.ingredients.push(it);
   });
@@ -782,38 +1107,12 @@ function convSummary(i){
 }
 
 /* Valeurs moyennes pour la liste de base (poids prêt à l'emploi) */
-const BASE_CONV = {
-  "Farine T45":{density:.55},"Farine T55":{density:.55},"Farine T65":{density:.55},
-  "Farine de maïs":{density:.6},"Farine de riz":{density:.6},"Farine de sarrasin":{density:.55},
-  "Maïzena":{density:.6},"Sucre semoule":{density:.85},"Sucre glace":{density:.56},"Cassonade":{density:.8},
-  "Miel":{density:1.4},"Cacao en poudre":{density:.45},"Levure chimique":{density:.9},
-  "Levure boulangère fraîche":{pieceG:42},"Gélatine en feuilles":{pieceG:2},"Agar-agar":{density:.55},
-  "Riz":{density:.85},"Semoule de blé":{density:.7},
-  "Beurre doux":{density:.91},"Beurre demi-sel":{density:.91},"Margarine":{density:.91},
-  "Huile de tournesol":{density:.92},"Huile de colza":{density:.92},"Huile d'arachide":{density:.92},
-  "Huile d'olive vierge extra":{density:.92},"Huile de noix":{density:.92},
-  "Sel fin":{density:1.2},"Poivre noir moulu":{density:.5},"Moutarde de Dijon":{density:1.05},
-  "Vinaigre de vin":{density:1.01},"Vinaigre balsamique":{density:1.05},"Vinaigre de cidre":{density:1.01},
-  "Mayonnaise":{density:.95},"Ketchup":{density:1.15},"Sauce soja":{density:1.15},"Harissa":{density:1.05},
-  "Concentré de tomate":{density:1.1},"Cornichons (égouttés)":{pieceG:10},
-  "Paprika":{density:.45},"Curry en poudre":{density:.5},"Cumin moulu":{density:.45},"Curcuma":{density:.55},
-  "Cannelle moulue":{density:.5},"Noix de muscade":{pieceG:6},"Gingembre moulu":{density:.5},
-  "Thym frais (botte)":{pieceG:20},"Romarin frais (botte)":{pieceG:20},"Origan séché":{density:.15},
-  "Laurier (feuilles séchées)":{pieceG:.2},"Persil plat (botte)":{pieceG:50},"Ciboulette (botte)":{pieceG:25},
-  "Estragon (botte)":{pieceG:25},
-  "Lait entier":{density:1.03},"Crème liquide 30 %":{density:1},"Crème liquide 35 %":{density:1},
-  "Fromage blanc":{density:1.05},"Mascarpone":{density:1},"Crème fraîche épaisse":{density:1},
-  "Mozzarella":{pieceG:125},
-  "Oignon":{pieceG:135},"Échalote":{pieceG:25},"Ail":{pieceG:5},"Carotte":{pieceG:100},
-  "Céleri branche":{pieceG:35},"Poireau":{pieceG:150},"Tomate":{pieceG:115},"Pommes de terre":{pieceG:145},
-  "Courgette":{pieceG:240},"Aubergine":{pieceG:270},"Poivron":{pieceG:145},"Champignons de Paris":{pieceG:19},
-  "Citron":{pieceG:120},"Orange":{pieceG:200},"Pomme":{pieceG:145},"Poire":{pieceG:150},
-  "Crevettes crues entières":{pieceG:7},"Œufs":{pieceG:50}
-};
+const BASE_CONV = {"Lait entier":{"density":1.03},"Lait demi-écrémé":{"density":1.03},"Lait écrémé":{"density":1.03},"Lait de chèvre":{"density":1.03},"Lait de brebis":{"density":1.03},"Lait d'amande":{"density":1.03},"Lait d'avoine":{"density":1.03},"Lait de soja":{"density":1.03},"Crème liquide 30 %":{"density":1},"Crème liquide 35 %":{"density":1},"Crème épaisse":{"density":1},"Crème fraîche":{"density":1},"Crème légère":{"density":1},"Crème liquide végétale":{"density":1},"Lait de coco":{"density":1},"Riz basmati":{"density":0.85},"Riz thaï":{"density":0.85},"Riz rond":{"density":0.85},"Riz long grain":{"density":0.85},"Riz complet":{"density":0.85},"Riz arborio":{"density":0.85},"Riz carnaroli":{"density":0.85},"Riz sauvage":{"density":0.85},"Riz noir":{"density":0.85},"Riz rouge":{"density":0.85},"Lentilles vertes":{"density":0.8},"Lentilles blondes":{"density":0.8},"Lentilles corail":{"density":0.8},"Lentilles noires":{"density":0.8},"Pois chiches secs":{"density":0.8},"Haricots blancs":{"density":0.8},"Haricots rouges":{"density":0.8},"Haricots noirs":{"density":0.8},"Pois cassés":{"density":0.8},"Huile d'olive":{"density":0.92},"Huile de tournesol":{"density":0.92},"Huile de colza":{"density":0.92},"Huile d'arachide":{"density":0.92},"Huile de maïs":{"density":0.92},"Huile de pépins de raisin":{"density":0.92},"Huile de noix":{"density":0.92},"Huile de noisette":{"density":0.92},"Huile de sésame":{"density":0.92},"Huile de coco":{"density":0.92},"Huile d'avocat":{"density":0.92},"Huile de soja":{"density":0.92},"Vinaigre de vin rouge":{"density":1.01},"Vinaigre de vin blanc":{"density":1.01},"Vinaigre balsamique":{"density":1.01},"Vinaigre de cidre":{"density":1.01},"Vinaigre de Xérès":{"density":1.01},"Vinaigre de riz":{"density":1.01},"Vinaigre de malt":{"density":1.01},"Vinaigre de framboise":{"density":1.01},"Vinaigre de champagne":{"density":1.01},"Vinaigre de bière":{"density":1.01},"Farine T45":{"density":0.55},"Farine T55":{"density":0.55},"Farine T65":{"density":0.55},"Farine complète T150":{"density":0.55},"Farine de seigle":{"density":0.55},"Farine d'épeautre":{"density":0.55},"Farine de maïs":{"density":0.6},"Farine de riz":{"density":0.6},"Fécule de maïs":{"density":0.6},"Levure chimique":{"density":0.9},"Levure sèche":{"density":0.6},"Bicarbonate alimentaire":{"density":1.1},"Levure fraîche":{"pieceG":42},"Chapelure":{"density":0.45},"Panko":{"density":0.2},"Sucre blanc":{"density":0.85},"Sucre roux":{"density":0.85},"Cassonade":{"density":0.8},"Sucre glace":{"density":0.56},"Sucre muscovado":{"density":0.8},"Miel d'acacia":{"density":1.4},"Miel de fleurs":{"density":1.4},"Sirop d'érable":{"density":1.33},"Sirop d'agave":{"density":1.33},"Mélasse":{"density":1.4},"Semoule de blé":{"density":0.7},"Semoule fine":{"density":0.7},"Semoule moyenne":{"density":0.7},"Couscous":{"density":0.7},"Boulgour":{"density":0.75},"Quinoa":{"density":0.75},"Polenta":{"density":0.7},"Maïs en semoule":{"density":0.7},"Flocons d'avoine":{"density":0.4},"Graines de sésame":{"density":0.6},"Moutarde de Dijon":{"density":1.05},"Moutarde à l'ancienne":{"density":1.05},"Moutarde forte":{"density":1.05},"Ketchup":{"density":1.15},"Mayonnaise":{"density":0.95},"Sauce soja":{"density":1.15},"Sauce teriyaki":{"density":1.2},"Sauce Worcestershire":{"density":1.1},"Sauce huître":{"density":1.2},"Sauce nuoc-mâm":{"density":1.2},"Tabasco":{"density":1},"Harissa":{"density":1.05},"Pesto vert":{"density":1},"Pesto rouge":{"density":1},"Tapenade noire":{"density":1},"Tapenade verte":{"density":1},"Câpres":{"density":0.6},"Cornichons":{"pieceG":10},"Beurre doux":{"density":0.91},"Beurre demi-sel":{"density":0.91},"Beurre clarifié":{"density":0.91},"Graisse de canard":{"density":0.9},"Saindoux":{"density":0.9},"Margarine":{"density":0.91},"Yaourt nature":{"density":1.05},"Yaourt grec":{"density":1.05},"Yaourt brassé":{"density":1.05},"Fromage blanc":{"density":1.05},"Faisselle":{"density":1.05},"Mascarpone":{"density":1},"Ricotta":{"density":1},"Œuf liquide pasteurisé":{"density":1.03},"Oignon jaune":{"pieceG":135},"Oignon rouge":{"pieceG":135},"Oignon blanc":{"pieceG":100},"Échalote":{"pieceG":25},"Carotte":{"pieceG":100},"Céleri branche":{"pieceG":35},"Poireau":{"pieceG":150},"Tomate ronde":{"pieceG":115},"Tomate grappe":{"pieceG":100},"Tomate cœur de bœuf":{"pieceG":250},"Tomate cerise":{"pieceG":12},"Pomme de terre":{"pieceG":145},"Courgette":{"pieceG":240},"Courgette jaune":{"pieceG":240},"Aubergine":{"pieceG":270},"Poivron rouge":{"pieceG":145},"Poivron vert":{"pieceG":145},"Poivron jaune":{"pieceG":145},"Poivron orange":{"pieceG":145},"Champignon de Paris":{"pieceG":19},"Citron jaune":{"pieceG":120},"Citron vert":{"pieceG":60},"Orange":{"pieceG":200},"Pomme":{"pieceG":145},"Poire":{"pieceG":150},"Banane":{"pieceG":110},"Kiwi vert":{"pieceG":75},"Kiwi jaune":{"pieceG":75},"Clémentine":{"pieceG":60},"Mandarine":{"pieceG":70},"Endive":{"pieceG":110},"Fenouil":{"pieceG":200},"Navet":{"pieceG":120},"Panais":{"pieceG":150},"Patate douce":{"pieceG":250},"Radis rose":{"pieceG":12},"Mangue":{"pieceG":280},"Pêche":{"pieceG":135},"Nectarine":{"pieceG":135},"Abricot":{"pieceG":45},"Figue fraîche":{"pieceG":45},"Datte":{"pieceG":8},"Litchi":{"pieceG":12},"Fruit de la passion":{"pieceG":18},"Œuf de poule":{"pieceG":50},"Œuf de caille":{"pieceG":9},"Caille":{"pieceG":140},"Gambas":{"pieceG":25},"Langoustine":{"pieceG":15},"Saint-Jacques":{"pieceG":25},"Jaune d'œuf liquide (ovoproduit)":{"density":1.03},"Blanc d'œuf liquide (ovoproduit)":{"density":1.03},"Farine de sarrasin":{"density":0.55},"Cacao en poudre":{"density":0.45},"Gélatine en feuilles":{"pieceG":2},"Agar-agar":{"density":0.55},"Sel fin":{"density":1.2},"Poivre noir moulu":{"density":0.5},"Concentré de tomate":{"density":1.1},"Paprika":{"density":0.45},"Curry en poudre":{"density":0.5},"Cumin moulu":{"density":0.45},"Curcuma":{"density":0.55},"Cannelle moulue":{"density":0.5},"Noix de muscade":{"pieceG":6},"Gingembre moulu":{"density":0.5},"Thym frais (botte)":{"pieceG":20},"Romarin frais (botte)":{"pieceG":20},"Origan séché":{"density":0.15},"Laurier (feuilles séchées)":{"pieceG":0.2},"Persil plat (botte)":{"pieceG":50},"Ciboulette (botte)":{"pieceG":25},"Estragon (botte)":{"pieceG":25},"Mozzarella":{"pieceG":125},"Ail":{"pieceG":5},"Crevettes crues entières":{"pieceG":7}};
+
 /* Parties d'un ingrédient, au prix du gramme de l'ingrédient d'origine */
 const BASE_DERIVED = [
-  {name:"Jaune d'œuf", parent:"Œufs", pieceG:20, al:["oeufs"], aliases:["Jaunes d'œufs","Jaune"]},
-  {name:"Blanc d'œuf", parent:"Œufs", pieceG:30, al:["oeufs"], aliases:["Blancs d'œufs","Blanc"]}
+  {name:"Jaune d'œuf", parent:"Œuf de poule", pieceG:20, al:["oeufs"], aliases:["Jaunes d'œufs","Jaune"]},
+  {name:"Blanc d'œuf", parent:"Œuf de poule", pieceG:30, al:["oeufs"], aliases:["Blancs d'œufs","Blanc"]}
 ];
 /* nom normalisé → nom de la liste de base (alias compris) */
 function baseNameIndex(){
@@ -1194,10 +1493,18 @@ function viewIngredients(){
     <div class="list" id="ingList"></div>`;
   renderIngList();
 }
+function frDate(iso){ const m=/^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(iso||""); return m ? (m[3]?m[3]+"/":"")+m[2]+"/"+m[1] : ""; }
+function priceBadge(i){
+  if(i.from) return "";
+  if(i.priceKind==="releve") return `<b class="src-ok">Cours relevé le ${frDate(i.priceDate)}</b> (${esc((i.priceSource||"").split(",").slice(0,2).join(","))}) · `;
+  if(i.estimate) return `<b>Prix estimé${i.priceDate?" le "+frDate(i.priceDate):""}, à vérifier</b> · `;
+  if(i.priceDate||i.priceSource) return `Prix du ${frDate(i.priceDate)||"?"}${i.priceSource?" ("+esc(i.priceSource)+")":""} · `;
+  return "";
+}
 function baseNotice(){
   const n = baseMissing().length;
   if(!n || state.settings.baseHidden) return "";
-  return `<div class="notice no-print"><span><b>Liste de base : ${n} ingrédient${n>1?"s":""} courant${n>1?"s":""}</b> (épicerie, matières grasses, condiments, épices, produits laitiers, fruits et légumes, viandes et poissons), avec rendement, allergènes et un prix HT indicatif. Vos ingrédients existants ne sont pas modifiés.</span><button class="btn small" data-a="add-base">Ajouter la liste de base</button><button class="btn small ghost" data-a="hide-base">Masquer</button></div>`;
+  return `<div class="notice no-print"><span><b>Catalogue : ${n} ingrédient${n>1?"s":""} à ajouter</b> (légumes, fruits, viandes, volailles, poissons, fruits de mer, laitiers, céréales, épicerie, épices…), avec rendement, allergènes, conversions et un prix HT daté avec sa source. Vos ingrédients existants ne sont pas modifiés.</span><button class="btn small" data-a="add-base">Ajouter le catalogue</button><button class="btn small ghost" data-a="hide-base">Masquer</button></div>`;
 }
 function renderIngList(){
   const q = ui.q.trim().toLowerCase();
@@ -1206,7 +1513,7 @@ function renderIngList(){
     const al = i.allergens.map(id=>ALLERGENS.find(a=>a.id===id)?.s).filter(Boolean).join(", ");
     return `<div class="ing-row">
       <div class="rc-main"><div class="t">${esc(i.name)}</div>
-      <div class="s">${i.estimate?"<b>Prix indicatif à vérifier</b> · ":""}${convSummary(i)?esc(convSummary(i))+" · ":""}${i.yield<100?`Rendement ${nf(i.yield,0)} % · `:""}${i.supplier?esc(i.supplier)+" · ":""}${i.todo?"<b>Allergènes à vérifier</b>":al?"Allergènes : "+esc(al):"Sans allergène"}</div></div>
+      <div class="s">${priceBadge(i)}${convSummary(i)?esc(convSummary(i))+" · ":""}${i.yield<100?`Rendement ${nf(i.yield,0)} % · `:""}${i.supplier?esc(i.supplier)+" · ":""}${i.todo?"<b>Allergènes à vérifier</b>":al?"Allergènes : "+esc(al):"Sans allergène"}</div></div>
       <div class="money">${i.from?(parentOf(i)?(()=>{ const cpg=costPerGram(i); return cpg!==null&&i.pieceG?money(cpg*i.pieceG)+" la pièce":"d'après "+esc(parentOf(i).name); })():'<span class="badge warn">Origine supprimée</span>'):i.price>0?money(i.price)+" "+PRICE_LABEL[i.priceUnit]:'<span class="badge warn">Prix à saisir</span>'}</div>
       <button class="btn small ghost" data-a="edit-ing" data-id="${i.id}">Modifier</button></div>`;
   }).join("") : `<div class="empty">${state.ingredients.length?"Aucun résultat.":"Aucun ingrédient. Ajoutez-en un avec son prix d'achat."}</div>`;
@@ -1229,6 +1536,12 @@ function openIng(id, after){
       <label class="f">Fournisseur (facultatif)<input type="text" name="supplier" value="${esc(i.supplier||"")}"></label>
     </div>
     <p class="hint" style="margin:-6px 0 0">Rendement : 100 % si tout est utilisé. Une pomme de terre épluchée peut être à 80 %, un saumon entier à 60 %.</p>
+    <div class="two">
+      <label class="f">Source du prix<input type="text" name="priceSource" value="${esc(i.priceSource||"")}" placeholder="Ex : Metro, facture du 12/09"></label>
+      <label class="f">Date du prix<input type="date" name="priceDate" value="${esc(/^\d{4}-\d{2}-\d{2}$/.test(i.priceDate||"")?i.priceDate:"")}"></label>
+    </div>
+    ${i.priceKind==="releve"&&i.priceUrl?`<p class="hint" style="margin:-6px 0 0">Cours officiel : <a href="${esc(i.priceUrl)}" target="_blank" rel="noopener">voir la source</a>. Prix de gros HT à une date donnée : ajoutez votre marge de livraison si besoin.</p>`:""}
+    ${i.estimate?`<p class="hint" style="margin:-6px 0 0">Ce prix est une <b>estimation</b>. Remplacez-le par votre prix fournisseur : la date et la source se mettront à jour.</p>`:""}
     <div class="two">
       <label class="f">Poids d'une pièce prête à l'emploi (g)<input type="text" inputmode="decimal" class="num" name="pieceG" value="${inputNum(i.pieceG)}" placeholder="Ex : 50 pour un œuf"></label>
       <label class="f">Densité (g par ml)<input type="text" inputmode="decimal" class="num" name="density" value="${inputNum(i.density)}" placeholder="Ex : 0,92 pour l'huile"></label>
@@ -1447,8 +1760,26 @@ document.addEventListener("submit", e=>{
     name:String(fd.get("name")).trim(), price:num(fd.get("price")), priceUnit:fd.get("priceUnit"),
     yield:Math.min(100,Math.max(1,num(fd.get("yield"))||100)), supplier:String(fd.get("supplier")).trim(),
     allergens:fd.getAll("al"),
-    pieceG:num(fd.get("pieceG"))||null, density:num(fd.get("density"))||null, from:fd.get("from")||null
+    pieceG:num(fd.get("pieceG"))||null, density:num(fd.get("density"))||null, from:fd.get("from")||null,
+    priceSource:String(fd.get("priceSource")||"").trim(), priceDate:String(fd.get("priceDate")||"")
   };
+  { /* Suivi de la source : un prix modifié devient une saisie datée du jour */
+    const old = id ? ing(id) : null, today = new Date().toISOString().slice(0,10);
+    if(!old){
+      if(!data.priceSource && data.price>0) data.priceSource = "Saisie manuelle";
+      if(!data.priceDate && data.price>0) data.priceDate = today;
+      data.priceKind = "manuel";
+    } else {
+      const priceChanged = Math.abs((old.price||0)-(data.price||0))>1e-9 || old.priceUnit!==data.priceUnit;
+      const srcChanged = (old.priceSource||"")!==data.priceSource || (old.priceDate||"")!==data.priceDate;
+      if(priceChanged && !srcChanged && data.price>0){
+        if(old.priceKind==="estim" || old.priceKind==="releve" || !data.priceSource) data.priceSource = "Saisie manuelle";
+        data.priceDate = today;
+      }
+      data.priceKind = (priceChanged || srcChanged) ? "manuel" : (old.priceKind || "manuel");
+      data._keepEstimate = !!(old.estimate && !priceChanged && !srcChanged);
+    }
+  }
   if(!data.name) return;
   if(data.from && !data.pieceG){ alert("Indiquez le poids d'une pièce pour un ingrédient calculé à partir d'un autre."); return; }
   if(data.from) data.priceUnit="pce";
@@ -1457,7 +1788,7 @@ document.addEventListener("submit", e=>{
     const i=ing(id); Object.assign(i,data);
     state.recipes.forEach(r=>r.lines.forEach(l=>{ if(l.ingId===id && !unitsFor(i).includes(l.unit)) l.unit=defaultUnit(i); }));
   } else { savedId=uid(); state.ingredients.push({id:savedId,...data}); }
-  { const it=ing(savedId); if(it){ delete it.todo; delete it.estimate; } }
+  { const it=ing(savedId); if(it){ delete it.todo; if(!data._keepEstimate) delete it.estimate; delete it._keepEstimate; if(it.priceKind==="manuel") delete it.priceUrl; } }
   save(); $("#ingDlg").close();
   const cb=dlgAfter; dlgAfter=null;
   if(cb) cb(savedId); else render();
