@@ -55,3 +55,39 @@ CORRECTION (version 8) - BANDEAU DES EXEMPLES
   vos ingredients sont conserves.
 - Nouveau bouton "Masquer ce message" : fait disparaitre le bandeau sans rien
   supprimer.
+
+NOUVEAU (version 9) - CATALOGUE DE 430 INGREDIENTS AVEC PRIX DATES ET SOURCES
+- Onglet Ingredients > "Ajouter le catalogue" : les 400 ingredients du
+  catalogue + 30 complements (epices, herbes, chocolat, sel, fromages, ail...).
+- Chaque prix a une DATE et une SOURCE, visibles dans la liste :
+  "Cours releve le 23/09/2026 (RNM FranceAgriMer, Rungis)" = cours officiel ;
+  "Prix estime le 24/09/2026, a verifier" = estimation a remplacer.
+- Quand vous changez un prix, la source devient "Saisie manuelle" et la date
+  celle du jour. Vous pouvez aussi ecrire vous-meme la source (fournisseur,
+  facture) et la date.
+- Allergenes corriges par rapport au fichier d'origine : poissons, crustaces,
+  mollusques, celeri, soja, sulfites, moutarde... (voir la colonne "remarque"
+  du fichier catalogue_ingredients_prix_sources.csv).
+
+NOUVEAU (version 10) - ONGLET LEXIQUE
+- Nouvel onglet "Lexique" : bouton "Charger le lexique" (2 250 termes).
+- Classement par lettre (A a Z), recherche dans les termes et les definitions,
+  filtres par categorie et par statut (Redige, Derive a relire, A rediger,
+  A verifier).
+- "Modifier" sur chaque terme pour corriger ; "+ Nouveau terme" pour ajouter.
+  Une definition ecrite pour un terme "a rediger" le fait passer en "Redige".
+- "Exporter en CSV" telecharge le lexique avec vos corrections.
+- Le lexique est inclus dans vos sauvegardes.
+
+NOUVEAU (version 11) - TROUVER LE PRIX D'UN INGREDIENT
+- Onglet Ingredients : tapez un nom dans "Rechercher" (ex : bouquet garni).
+  S'il n'est pas dans vos ingredients mais dans le catalogue, il s'affiche
+  avec son prix, sa date et sa source : bouton "Ajouter".
+- "+ Nouvel ingredient" : en tapant le nom, le catalogue propose des
+  ingredients ; en touchant l'un d'eux, prix, unite, rendement, allergenes,
+  source, date et conversions se remplissent tout seuls.
+- Si l'ingredient n'existe pas dans le catalogue : liens vers les cours du
+  RNM et vers une recherche de prix sur le web, et la definition du lexique.
+- 24 ingredients ajoutes au catalogue : bouquet garni, herbes fraiches en
+  botte, clou de girofle, badiane, genievre, piment d'Espelette, vanille,
+  safran, fleur de sel, gros sel, vins de cuisine, cognac, fonds deshydrates...
