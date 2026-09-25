@@ -453,6 +453,28 @@ dialog:has(.mview){max-width:820px}
 .rcat{color:var(--brand);font-weight:700}
 .rec-catrow{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:-10px 0 20px}
 .rec-catrow .f{max-width:320px;flex:1;margin:0}
+.fold-h{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;padding:0;margin:0 0 12px;cursor:pointer;text-align:left;color:inherit;font:inherit;min-height:40px}
+.fold-h h3{margin:0}
+.fold-sum{margin-left:auto;font-size:.86rem;color:var(--muted);font-weight:600;text-align:right;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chev{flex:none;width:30px;height:30px;border-radius:50%;background:var(--brand-soft);position:relative;transition:transform .2s}
+.chev::before{content:"";position:absolute;left:10px;top:9px;width:8px;height:8px;border-right:2.5px solid var(--brand);border-bottom:2.5px solid var(--brand);transform:rotate(45deg)}
+[aria-expanded="false"] > .chev{transform:rotate(-90deg)}
+.card.folded .fold-h{margin-bottom:0}
+.card.folded .fold-body{display:none}
+.fold-compact{display:none}
+.card.folded .fold-compact{display:block;margin-top:12px}
+.card:not(.folded) .fold-sum.only-folded{display:none}
+.ing-compact{list-style:none;margin:0;padding:0;columns:2 260px;column-gap:28px}
+.ing-compact li{display:flex;gap:12px;padding:6px 0;border-bottom:1px solid var(--line);break-inside:avoid}
+.ing-compact b{min-width:84px;text-align:right;font-variant-numeric:tabular-nums}
+.steps-tools{display:flex;gap:8px;justify-content:flex-end;margin:-4px 0 8px}
+.step-top{display:flex;align-items:center;gap:10px}
+.step-fold{display:flex;align-items:center;gap:10px;border:0;background:none;padding:0;cursor:pointer;font:inherit;color:inherit;min-height:40px}
+.step-top .iconbtn{margin-left:auto}
+.step.is-folded{gap:4px}
+.step-text{margin:0 0 0 40px;line-height:1.5;white-space:pre-line}
+.step-meta{margin:0 0 0 40px;font-size:.82rem;color:var(--muted)}
+@media print{ .card.folded .fold-body{display:block!important} .card.folded .fold-compact{display:none!important} .chev,.steps-tools{display:none!important} }
 </style>
 </head>
 <body>
@@ -1543,6 +1565,58 @@ document.addEventListener("input", e=>{
   if(e.target.dataset && e.target.dataset.f==="r-cat"){ const r=rec(ui.recipeId); if(r){ r.category=e.target.value.trim(); save(); } }
 });
 
+/* ========= Cartes et étapes repliables =========
+   Une flèche replie une carte : il reste un résumé lisible.
+   Préférence mémorisée pour toutes les recettes (state.settings.folds).
+   Chaque étape se replie aussi : on garde le texte, on cache temps,
+   liens, ingrédients et ustensiles. */
+function folded(k){ return !!((state.settings.folds||{})[k]); }
+function foldHead(k, title){
+  return `<button type="button" class="fold-h" data-a="fold" data-k="${k}" aria-expanded="${!folded(k)}">
+    <span class="chev" aria-hidden="true"></span><h3>${title}</h3><span class="fold-sum" id="sum-${k}"></span></button>`;
+}
+function stepMeta(r,s){
+  const p=[];
+  if(s.active) p.push("travail "+fmtMin(s.active));
+  if(s.wait) p.push("cuisson / repos "+fmtMin(s.wait));
+  const ings=(s.lines||[]).map(id=>{ const l=r.lines.find(x=>x.id===id); const i=l&&ing(l.ingId); return i?i.name:null; }).filter(Boolean);
+  if(ings.length) p.push(ings.join(", "));
+  if((s.tools||[]).length) p.push(s.tools.join(", "));
+  return p.join(" · ");
+}
+function refreshFoldSummaries(){
+  const r = rec(ui.recipeId); if(!r) return;
+  const set=(k,t)=>{ const el=$("#sum-"+k); if(el) el.textContent=t; };
+  const n=r.lines.filter(l=>ing(l.ingId)).length;
+  set("ing", `${n} ingrédient${n>1?"s":""}`);
+  const al=recipeAllergens(r).map(a=>a.s).filter(Boolean);
+  set("al", al.length ? al.join(", ") : "aucun");
+  const ns=(r.steps||[]).length, sch=schedule(r);
+  set("steps", ns ? `${ns} étape${ns>1?"s":""}${sch?" · "+fmtMin(sch.total):""}` : "aucune");
+  set("plan", sch ? `durée totale ${fmtMin(sch.total)}${r.service?" · service "+r.service:""}` : "");
+  set("notes", (r.notes||"").split("\n")[0].slice(0,60));
+  const box=$("#ingCompact");
+  if(box){
+    const c=calc(r,r.portions);
+    box.innerHTML = r.lines.filter(l=>ing(l.ingId)).map(l=>`<li><b>${l.qty>0?qtyFmt(l.qty*c.factor,l.unit):"–"}</b><span>${esc(ing(l.ingId).name)}</span></li>`).join("")
+      || `<li class="hint">Aucun ingrédient.</li>`;
+  }
+}
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a='fold'],[data-a='s-fold'],[data-a='steps-fold']"); if(!el) return;
+  const r = rec(ui.recipeId);
+  if(el.dataset.a==="fold"){
+    const k=el.dataset.k; state.settings.folds=state.settings.folds||{}; state.settings.folds[k]=!state.settings.folds[k];
+    save.clean=true; save(); save.clean=false;
+    const card=el.closest(".card"); card.classList.toggle("folded", folded(k)); el.setAttribute("aria-expanded", String(!folded(k)));
+    refreshFoldSummaries();
+  } else if(el.dataset.a==="s-fold" && r){
+    const s=r.steps.find(x=>x.id===el.dataset.s); if(s){ s.c=!s.c; save(); refreshSteps(); }
+  } else if(el.dataset.a==="steps-fold" && r){
+    const close = el.dataset.v==="close"; (r.steps||[]).forEach(s=>s.c=close); save(); refreshSteps();
+  }
+});
+
 /* ========= Interface ========= */
 let ui = {view:"recipes", recipeId:null, target:{}, q:""};
 const $ = s => document.querySelector(s);
@@ -1648,8 +1722,10 @@ function viewRecipe(){
 
     <div class="layout">
       <div style="display:grid;gap:16px">
-        <div class="card">
-          <h3>Ingrédients</h3>
+        <div class="card${folded("ing")?" folded":""}">
+          ${foldHead("ing","Ingrédients")}
+          <ul class="ing-compact fold-compact" id="ingCompact"></ul>
+          <div class="fold-body">
           <div class="lines-head"><span>Ingrédient</span><span style="text-align:right">Quantité</span><span>Unité</span><span style="text-align:right">Coût</span><span></span></div>
           <div id="lines">${r.lines.map(l=>lineHTML(r,l,1)).join("")}</div>
           <div class="no-print" style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap">
@@ -1657,24 +1733,27 @@ function viewRecipe(){
             <button class="btn small ghost" data-a="new-ing-inline">Créer un nouvel ingrédient</button>
           </div>
           ${state.ingredients.length===0?`<p class="hint">Vous n'avez pas encore d'ingrédient : créez-en un avec son prix.</p>`:""}
+          </div>
         </div>
-        <div class="card">
-          <h3>Allergènes de ce plat</h3>
-          <div class="chips" id="allergChips"></div>
+        <div class="card${folded("al")?" folded":""}">
+          ${foldHead("al","Allergènes de ce plat")}
+          <div class="fold-body"><div class="chips" id="allergChips"></div></div>
         </div>
-        <div class="card">
-          <h3>Étapes de préparation</h3>
+        <div class="card${folded("steps")?" folded":""}">
+          ${foldHead("steps","Étapes de préparation")}
+          <div class="fold-body">
           <div id="stepsList">${stepsEditorHTML(r)}</div>
           <button class="btn small no-print" data-a="add-step" style="margin-top:12px">+ Ajouter une étape</button>
           <datalist id="toolList">${TOOL_SUGGEST.map(t=>`<option value="${esc(t)}">`).join("")}</datalist>
+          </div>
         </div>
-        <div class="card">
-          <h3>Ordre de travail</h3>
-          <div id="workplan"></div>
+        <div class="card${folded("plan")?" folded":""}">
+          ${foldHead("plan","Ordre de travail")}
+          <div class="fold-body"><div id="workplan"></div></div>
         </div>
-        <div class="card">
-          <h3>Notes et dressage</h3>
-          <textarea data-f="r-notes" placeholder="Dressage, conservation, remarques…">${esc(r.notes||"")}</textarea>
+        <div class="card${folded("notes")?" folded":""}">
+          ${foldHead("notes","Notes et dressage")}
+          <div class="fold-body"><textarea data-f="r-notes" placeholder="Dressage, conservation, remarques…">${esc(r.notes||"")}</textarea></div>
         </div>
       </div>
       <div class="ticket-wrap"><aside class="ticket" id="results" aria-live="polite"></aside></div>
@@ -1734,9 +1813,16 @@ function stepHTML(r,s,k){
   const others = (r.steps||[]).filter(x=>x.id!==s.id);
   const lines = r.lines.filter(l=>ing(l.ingId));
   const n = new Map((r.steps||[]).map((x,j)=>[x.id,j+1]));
+  const top = `<div class="step-top"><button type="button" class="step-fold" data-a="s-fold" data-s="${s.id}" aria-expanded="${!s.c}" aria-label="${s.c?"Déplier":"Replier"} l'étape ${k+1}"><span class="chev" aria-hidden="true"></span><span class="step-n">Étape ${k+1}</span></button>
+      <button class="iconbtn no-print" data-a="del-step" data-s="${s.id}" aria-label="Supprimer l'étape ${k+1}">✕</button></div>`;
+  if(s.c){
+    const meta = stepMeta(r,s);
+    return `<div class="step is-folded" data-step="${s.id}">${top}
+      <p class="step-text">${(s.text||"").trim()?esc(s.text):"<i>Sans description</i>"}</p>
+      ${meta?`<p class="step-meta">${esc(meta)}</p>`:""}</div>`;
+  }
   return `<div class="step" data-step="${s.id}">
-    <div class="step-h"><span class="step-n">Étape ${k+1}</span>
-      <button class="iconbtn no-print" data-a="del-step" data-s="${s.id}" aria-label="Supprimer l'étape ${k+1}">✕</button></div>
+    ${top}
     <textarea data-f="s-text" data-s="${s.id}" rows="2" placeholder="Ex : Suer les oignons, mouiller au fond, cuire à couvert…">${esc(s.text||"")}</textarea>
     <div class="two">
       <label class="f">Travail (min)<input type="text" inputmode="decimal" class="num" data-f="s-active" data-s="${s.id}" value="${inputNum(s.active)}" placeholder="0"></label>
@@ -1753,7 +1839,8 @@ function stepHTML(r,s,k){
   </div>`;
 }
 function stepsEditorHTML(r){
-  return (r.steps||[]).map((s,k)=>stepHTML(r,s,k)).join("")
+  return ((r.steps||[]).length>1?`<div class="steps-tools no-print"><button class="btn small ghost" data-a="steps-fold" data-v="close">Tout replier</button><button class="btn small ghost" data-a="steps-fold" data-v="open">Tout déplier</button></div>`:"")
+    + (r.steps||[]).map((s,k)=>stepHTML(r,s,k)).join("")
     || `<p class="hint" style="margin:0 0 4px">Découpez la recette en étapes. Indiquez pour chacune le temps de travail et le temps de cuisson ou de repos : l'ordre de travail se calcule tout seul.</p>`;
 }
 function refreshSteps(){
@@ -1764,6 +1851,7 @@ function refreshSteps(){
 
 /* --- Ordre de travail (calculé) --- */
 function refreshWorkplan(){
+  refreshFoldSummaries();
   const r = rec(ui.recipeId); const box = $("#workplan"); if(!r || !box) return;
   const sch = schedule(r);
   if(!sch){ box.innerHTML = `<p class="hint" style="margin:0">Ajoutez des étapes pour obtenir l'ordre de travail, la mise en place et la liste du matériel.</p>`; return; }
@@ -1963,7 +2051,7 @@ document.addEventListener("click", e=>{
       r.lines.push({id:uid(),ingId:"",qty:0,unit:"g"}); save(); viewRecipe();
       const s=document.querySelectorAll(".ingsel"); s[s.length-1]?.focus(); break; }
     case "del-line": r.lines=r.lines.filter(l=>l.id!==el.dataset.l); (r.steps||[]).forEach(st=>st.lines=(st.lines||[]).filter(x=>x!==el.dataset.l)); save(); viewRecipe(); break;
-    case "add-step": { r.steps=r.steps||[]; const st={id:uid(),text:"",active:0,wait:0,after:r.steps.length?[r.steps[r.steps.length-1].id]:[],lines:[],tools:[]}; r.steps.push(st); save(); refreshSteps();
+    case "add-step": { r.steps=r.steps||[]; r.steps.forEach(x=>{ if((x.text||"").trim()) x.c=true; }); const st={id:uid(),text:"",active:0,wait:0,after:r.steps.length?[r.steps[r.steps.length-1].id]:[],lines:[],tools:[]}; r.steps.push(st); save(); refreshSteps();
       setTimeout(()=>document.querySelector(`[data-f="s-text"][data-s="${st.id}"]`)?.focus(),30); break; }
     case "del-step": { const sid=el.dataset.s; const st=(r.steps||[]).find(x=>x.id===sid);
       if(st && (st.text||"").trim() && !confirm("Supprimer cette étape ?")) break;
