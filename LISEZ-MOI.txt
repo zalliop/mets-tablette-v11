@@ -127,3 +127,17 @@ NOUVEAU (version 15)
 - Recherche d'ingredients : d'abord ceux qui commencent par le texte tape.
 - Logo plus grand, sur le meme fond que le bouton "Exporter en PDF" ;
   icone de l'ecran d'accueil assortie.
+
+NOUVEAU (version 16)
+- Lexique : 10 termes par page, avec numeros de page (par lettre, par
+  recherche et par filtre).
+- Recettes : la bande a gauche de chaque recette a la couleur du bouton
+  "Nouvelle recette". Le food cost reste indique par la pastille a droite.
+
+NOUVEAU (version 17) - LEXIQUE RANGE
+- Les ingredients melanges au lexique (abricot, lait, poivron... 478 termes)
+  en sont retires. Si votre lexique etait deja charge : onglet Lexique >
+  bouton "Ranger". Les termes que vous avez rediges ne sont pas touches.
+- Ces produits restent trouvables dans Ingredients (recherche, "+ Nouvel
+  ingredient", choix dans une recette), marques "prix a saisir".
+- 486 autres termes sont reclasses en Technique ou Plat.
