@@ -141,3 +141,16 @@ NOUVEAU (version 17) - LEXIQUE RANGE
 - Ces produits restent trouvables dans Ingredients (recherche, "+ Nouvel
   ingredient", choix dans une recette), marques "prix a saisir".
 - 486 autres termes sont reclasses en Technique ou Plat.
+
+NOUVEAU (version 18) - RECETTES DE BASE
+- Une recette peut en utiliser une autre : roux -> bechamel -> sauce Mornay.
+  Dans une recette, tapez le nom dans "Ingredient" : la rubrique
+  "Recettes deja faites" propose vos recettes. Plus besoin de tout ressaisir.
+- Le cout et les allergenes viennent de la recette liee et restent a jour
+  quand vous la modifiez.
+- Quantite en portions de la recette liee, ou en g / ml si vous indiquez
+  "Quantite produite" dans la recette de base (ex. bechamel : 1 L).
+- "Ouvrir" sur la ligne ouvre la recette de base ; "<- Recettes" revient a
+  la recette de depart. "Utilisee dans" liste les recettes qui s'en servent.
+- Impossible de creer une boucle (la bechamel ne peut pas contenir la Mornay).
+- Supprimer une recette de base previent si elle est utilisee ailleurs.

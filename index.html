@@ -501,6 +501,16 @@ fieldset.dur span{font-weight:650;color:var(--muted)}
 #ingLetters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
 .brand svg{width:52px!important;height:52px!important;border-radius:14px}
 .brand .logo-bg{fill:var(--brand)}
+
+.pick-in.is-sub{font-weight:700;color:var(--brand);background:var(--brand-soft)}
+.pk-rec{color:var(--brand);font-weight:700}
+.sublink{font-size:.84rem}
+.bad-t{color:var(--bad)}
+.yieldset{display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap}
+.yieldset legend{width:100%}
+fieldset.yieldset input{width:100px}
+.yieldset select{width:90px}
+.used-in{margin:-8px 0 18px;font-size:.92rem;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -685,7 +695,9 @@ function fcClass(fc){
 }
 function recipeAllergens(r){
   const set = new Set();
-  r.lines.forEach(l=>{ const i=ing(l.ingId); if(i) i.allergens.forEach(a=>set.add(a)); });
+  const walk=(x,seen)=>{ if(seen.has(x.id)) return; seen.add(x.id);
+    x.lines.forEach(l=>{ if(l.recId){ const sr=rec(l.recId); if(sr) walk(sr,seen); } else { const i=ing(l.ingId); if(i) i.allergens.forEach(a=>set.add(a)); } }); };
+  walk(r,new Set());
   return ALLERGENS.filter(a=>set.has(a.id));
 }
 
@@ -693,6 +705,7 @@ function recipeAllergens(r){
 const nf = (n,d=2)=> n.toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const money = n => nf(n,2)+"\u00A0"+state.settings.currency;
 function qtyFmt(q,u){
+  if(u==="portion") return nf(q, q%1?1:0).replace(/,0$/,"")+"\u00A0"+(q>1?"portions":"portion");
   if(u==="g" && q>=1000){ q/=1000; u="kg"; }
   else if(u==="ml" && q>=1000){ q/=1000; u="L"; }
   else if(u==="cl" && q>=100){ q/=100; u="L"; }
@@ -750,6 +763,7 @@ function costPerGram(i, depth=0){
 }
 /* Coût d'une ligne : calcul direct si l'unité correspond au prix, sinon via les grammes */
 function lineCostInfo(l){
+  if(l.recId){ if(!(l.qty>0)) return {cost:0, ok:true}; return subCost(l); }
   const i = ing(l.ingId); if(!i || !(l.qty>0)) return {cost:0, ok:true};
   if(!i.from && dimOfIng(i)===unitDim(l.unit)){
     const y = (i.yield>0 ? i.yield : 100)/100, d = dimOfIng(i);
@@ -871,7 +885,7 @@ function timeLabel(r, sch, minutes){
 function miseEnPlace(r, sch){
   const firstUse = new Map();
   if(sch) sch.order.forEach(sid=>(sch.byId.get(sid).lines||[]).forEach(lid=>{ if(!firstUse.has(lid)) firstUse.set(lid,sid); }));
-  const lines = r.lines.filter(l=>ing(l.ingId));
+  const lines = r.lines.filter(l=>lineIng(l));
   const used = lines.filter(l=>firstUse.has(l.id)).sort((a,b)=>sch.start.get(firstUse.get(a.id))-sch.start.get(firstUse.get(b.id)));
   const rest = lines.filter(l=>!firstUse.has(l.id));
   return {used, rest, firstUse};
@@ -1144,7 +1158,7 @@ function recCategories(){
 function recMatches(r, q){
   const k = normName(q); if(!k) return true;
   if(normName(r.name).includes(k) || normName(r.category).includes(k)) return true;
-  return r.lines.some(l=>{ const i=ing(l.ingId); return i && normName(i.name).includes(k); });
+  return r.lines.some(l=>{ const i=lineIng(l); return i && normName(i.name).includes(k); });
 }
 function recRow(r){
   const c = calc(r), cls = fcClass(c.fc), al = recipeAllergens(r).length;
@@ -1210,7 +1224,7 @@ function stepMeta(r,s){
   const p=[];
   if(s.active) p.push("travail "+fmtMin(s.active));
   if(s.wait) p.push("cuisson / repos "+fmtMin(s.wait));
-  const ings=(s.lines||[]).map(id=>{ const l=r.lines.find(x=>x.id===id); const i=l&&ing(l.ingId); return i?i.name:null; }).filter(Boolean);
+  const ings=(s.lines||[]).map(id=>{ const l=r.lines.find(x=>x.id===id); const i=l&&lineIng(l); return i?i.name:null; }).filter(Boolean);
   if(ings.length) p.push(ings.join(", "));
   if((s.tools||[]).length) p.push(s.tools.join(", "));
   return p.join(" · ");
@@ -1218,7 +1232,7 @@ function stepMeta(r,s){
 function refreshFoldSummaries(){
   const r = rec(ui.recipeId); if(!r) return;
   const set=(k,t)=>{ const el=$("#sum-"+k); if(el) el.textContent=t; };
-  const n=r.lines.filter(l=>ing(l.ingId)).length;
+  const n=r.lines.filter(l=>lineIng(l)).length;
   set("ing", `${n} ingrédient${n>1?"s":""}`);
   const al=recipeAllergens(r).map(a=>a.s).filter(Boolean);
   set("al", al.length ? al.join(", ") : "aucun");
@@ -1229,7 +1243,7 @@ function refreshFoldSummaries(){
   const box=$("#ingCompact");
   if(box){
     const c=calc(r,r.portions);
-    box.innerHTML = r.lines.filter(l=>ing(l.ingId)).map(l=>`<li><b>${l.qty>0?qtyFmt(l.qty*c.factor,l.unit):"–"}</b><span>${esc(ing(l.ingId).name)}</span></li>`).join("")
+    box.innerHTML = r.lines.filter(l=>lineIng(l)).map(l=>`<li><b>${l.qty>0?qtyFmt(l.qty*c.factor,l.unit):"–"}</b><span>${esc(lineIng(l).name)}</span></li>`).join("")
       || `<li class="hint">Aucun ingrédient.</li>`;
   }
 }
@@ -1273,6 +1287,9 @@ function pickRender(input){
   let k=0, html="";
   if(starts.length) html += `<div class="pk-h">Commence par « ${esc(q)} »</div>` + starts.slice(0,40).map(i=>opt(i,k++)).join("");
   if(words.length) html += `<div class="pk-h">Contient « ${esc(q)} »</div>` + words.slice(0,15).map(i=>opt(i,k++)).join("");
+  const cur = rec(ui.recipeId), k2 = normName(q);
+  const recs = state.recipes.filter(x=>canUseAsSub(cur,x) && (normName(x.name).startsWith(k2) || normName(x.name).split(" ").some(w=>w.startsWith(k2)))).sort((a,b)=>a.name.localeCompare(b.name,"fr")).slice(0,8);
+  if(recs.length) html += `<div class="pk-h">Recettes déjà faites (préparations de base)</div>` + recs.map(x=>`<button type="button" class="pk-opt pk-rec" role="option" data-a="pick-rec" data-l="${input.dataset.l}" data-id="${x.id}" id="pk-${input.dataset.l}-${k++}">↳ ${esc(x.name)}<span>${x.yieldQty>0?"produit "+qtyFmt(x.yieldQty,x.yieldUnit):x.portions+" portions"}</span></button>`).join("");
   if(cat.length) html += `<div class="pk-h">Dans le catalogue (ajout automatique)</div>` + cat.map(c=>`<button type="button" class="pk-opt pk-cat" role="option" data-a="pick-cat" data-l="${input.dataset.l}" data-n="${esc(c.name)}" id="pk-${input.dataset.l}-${k++}">+ ${esc(c.name)}<span>${c.price>0?money(c.price)+" "+PRICE_LABEL[c.unit]:"prix à saisir"}</span></button>`).join("");
   if(!html) html = `<div class="pk-hint">Aucun ingrédient pour « ${esc(q)} ».</div>`;
   html += `<button type="button" class="pk-opt pk-new" data-a="pick-new" data-l="${input.dataset.l}" data-n="${esc(q)}">Créer « ${esc(q)} »…</button>`;
@@ -1282,12 +1299,12 @@ function pickRender(input){
 function pickClose(input, restore){
   const box = document.getElementById("pk-"+input.dataset.l); if(box) box.hidden = true;
   input.setAttribute("aria-expanded","false");
-  if(restore){ const r=rec(ui.recipeId), l=r&&r.lines.find(x=>x.id===input.dataset.l), i=l&&ing(l.ingId); input.value = i ? i.name : ""; }
+  if(restore){ const r=rec(ui.recipeId), l=r&&r.lines.find(x=>x.id===input.dataset.l), i=l&&lineIng(l); input.value = i ? i.name : ""; }
 }
 function pickSet(lineId, ingId){
   const r = rec(ui.recipeId); if(!r) return;
   const l = r.lines.find(x=>x.id===lineId); if(!l) return;
-  l.ingId = ingId; const i = ing(ingId);
+  l.ingId = ingId; l.recId = null; const i = ing(ingId);
   if(i && !unitsFor(i).includes(l.unit)) l.unit = defaultUnit(i);
   save(); viewRecipe();
   setTimeout(()=>document.querySelector(`[data-f="l-qty"][data-l="${lineId}"]`)?.focus(), 30);
@@ -1382,6 +1399,63 @@ document.addEventListener("click", e=>{
   if(top) top.scrollIntoView({behavior:"smooth", block:"start"});
 });
 
+/* ========= Recettes de base utilisées dans d'autres recettes =========
+   Une ligne peut désigner une recette (l.recId) au lieu d'un ingrédient :
+   roux → béchamel → sauce Mornay. On ne refait rien : le coût, les allergènes
+   et les quantités viennent de la recette liée, toujours à jour.
+   Unités : « portion » de la recette liée, ou le poids / volume si la recette
+   indique ce qu'elle produit (ex. béchamel : 1 L). */
+const YIELD_UNITS = ["g","kg","ml","cl","L"];
+function subDims(sr){ return sr && sr.yieldQty>0 && sr.yieldUnit ? (["g","kg"].includes(sr.yieldUnit) ? ["g","kg"] : ["ml","cl","L"]) : []; }
+function yieldBase(q,u){ return u==="kg"?q*1000 : u==="L"?q*1000 : u==="cl"?q*10 : q; }
+/* Recettes qui utilisent (directement ou non) la recette id */
+function usesRecipe(r, id, seen=new Set()){
+  if(!r || seen.has(r.id)) return false; seen.add(r.id);
+  return r.lines.some(l=>l.recId && (l.recId===id || usesRecipe(rec(l.recId), id, seen)));
+}
+function usedIn(id){ return state.recipes.filter(r=>r.lines.some(l=>l.recId===id)); }
+function canUseAsSub(parent, sub){ return sub && parent && sub.id!==parent.id && !usesRecipe(sub, parent.id); }
+/* « Ingrédient » virtuel qui représente une recette dans une ligne */
+function lineIng(l){
+  if(!l) return null;
+  if(!l.recId) return ing(l.ingId);
+  const sr = rec(l.recId); if(!sr) return null;
+  const al = recipeAllergens(sr).map(a=>a.id);
+  return { id:"rec:"+sr.id, name:sr.name||"Recette sans nom", isRecipe:true, recipe:sr, from:"recipe",
+           price:1, priceUnit:"pce", yield:100, allergens:al, todo:hasTodo(sr) };
+}
+function subCost(l, depth=0){
+  const sr = rec(l.recId); if(!sr || depth>6) return {cost:0, ok:false};
+  const total = sr.lines.reduce((s,x)=>s+(x.recId ? subCost(x,depth+1).cost : lineCost(x)),0);
+  if(l.unit==="portion") return {cost: sr.portions>0 ? total/sr.portions*l.qty : 0, ok: sr.portions>0};
+  if(sr.yieldQty>0 && subDims(sr).includes(l.unit)) return {cost: total*yieldBase(l.qty,l.unit)/yieldBase(sr.yieldQty,sr.yieldUnit), ok:true};
+  return {cost:0, ok:false};
+}
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a='open-sub'],[data-a='pick-rec']"); if(!el) return;
+  if(el.dataset.a==="open-sub"){
+    ui.recStack = ui.recStack || []; ui.recStack.push(ui.recipeId);
+    ui.recipeId = el.dataset.id; ui.view = "recipe"; render(); window.scrollTo(0,0);
+  } else {
+    const r = rec(ui.recipeId), l = r && r.lines.find(x=>x.id===el.dataset.l), sr = rec(el.dataset.id);
+    if(!l || !canUseAsSub(r, sr)) return;
+    l.recId = sr.id; l.ingId = ""; l.unit = subDims(sr).length ? sr.yieldUnit : "portion";
+    if(!(l.qty>0)) l.qty = l.unit==="portion" ? 1 : 0;
+    save(); viewRecipe();
+    setTimeout(()=>document.querySelector(`[data-f="l-qty"][data-l="${l.id}"]`)?.focus(), 30);
+  }
+});
+document.addEventListener("input", e=>{
+  const f = e.target.dataset && e.target.dataset.f; if(f!=="r-yq") return;
+  const r = rec(ui.recipeId); if(!r) return;
+  r.yieldQty = Math.max(0, num(e.target.value)); save();
+});
+document.addEventListener("change", e=>{
+  const f = e.target.dataset && e.target.dataset.f; if(f!=="r-yu") return;
+  const r = rec(ui.recipeId); if(!r) return;
+  r.yieldUnit = e.target.value; save(); viewRecipe();
+});
+
 /* ========= Interface ========= */
 let ui = {view:"recipes", recipeId:null, target:{}, q:""};
 const $ = s => document.querySelector(s);
@@ -1447,10 +1521,11 @@ function viewRecipes(){
 
 /* --- Fiche recette --- */
 function lineHTML(r,l,factor){
-  const i = ing(l.ingId);
-  const units = unitsFor(i);
+  const i = lineIng(l);
+  const sub = l.recId ? rec(l.recId) : null;
+  const units = l.recId ? ["portion", ...subDims(sub)] : unitsFor(i);
   return `<div class="line" data-line="${l.id}">
-    <div class="ingsel ingpick"><input type="text" class="pick-in" data-f="l-pick" data-l="${l.id}" value="${i?esc(i.name):""}" placeholder="Tapez les premières lettres…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pk-${l.id}" aria-label="Ingrédient"><div class="pick-list" id="pk-${l.id}" role="listbox" hidden></div></div>
+    <div class="ingsel ingpick"><input type="text" class="pick-in${l.recId?" is-sub":""}" data-f="l-pick" data-l="${l.id}" value="${i?esc(i.name):""}" placeholder="Tapez les premières lettres…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pk-${l.id}" aria-label="Ingrédient"><div class="pick-list" id="pk-${l.id}" role="listbox" hidden></div></div>
     <input type="text" inputmode="decimal" class="num" data-f="l-qty" data-l="${l.id}" value="${inputNum(l.qty)}" aria-label="Quantité" placeholder="0">
     <select data-f="l-unit" data-l="${l.id}" aria-label="Unité">${units.map(u=>`<option${u===l.unit?" selected":""}>${u}</option>`).join("")}</select>
     <div class="co" data-co="${l.id}"></div>
@@ -1481,7 +1556,12 @@ function viewRecipe(){
     </div>
     <div class="rec-catrow"><label class="f">Catégorie (pour ranger la recette)
       <input type="text" data-f="r-cat" list="recCatList" value="${esc(r.category||"")}" placeholder="Entrée, plat, dessert…"></label>
-      <datalist id="recCatList">${recCategories().map(c=>`<option value="${esc(c)}">`).join("")}</datalist></div>
+      <datalist id="recCatList">${recCategories().map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
+      <fieldset class="dur yieldset"><legend>Quantité produite (pour l'utiliser dans d'autres recettes)</legend>
+        <label><input type="text" inputmode="decimal" class="num" data-f="r-yq" value="${inputNum(r.yieldQty)}" placeholder="1" aria-label="Quantité produite"></label>
+        <select data-f="r-yu" aria-label="Unité de la quantité produite"><option value="">—</option>${YIELD_UNITS.map(u=>`<option${u===r.yieldUnit?" selected":""}>${u}</option>`).join("")}</select>
+      </fieldset></div>
+    ${(()=>{ const us=usedIn(r.id); return us.length?`<p class="used-in">Utilisée dans : ${us.map(x=>`<button type="button" class="linkbtn" data-a="open-sub" data-id="${x.id}">${esc(x.name)}</button>`).join(", ")}</p>`:""; })()}
 
     <div class="layout">
       <div style="display:grid;gap:16px">
@@ -1534,16 +1614,17 @@ function refreshCalc(){
     const co = document.querySelector(`[data-co="${l.id}"]`);
     if(sc) sc.textContent = l.qty>0 ? qtyFmt(l.qty*c.factor,l.unit) : "–";
     const info = lineCostInfo(l);
-    if(co){ co.textContent = ing(l.ingId) && l.qty>0 ? (info.ok ? money(info.cost*c.factor) : "?") : "–"; co.title = info.ok ? "" : "Conversion impossible"; }
+    if(co){ co.textContent = lineIng(l) && l.qty>0 ? (info.ok ? money(info.cost*c.factor) : "?") : "–"; co.title = info.ok ? "" : "Conversion impossible"; }
     const eq = document.querySelector(`[data-eq="${l.id}"]`);
-    if(eq){ const i=ing(l.ingId); eq.textContent = !info.ok ? `Conversion impossible : indiquez ${unitDim(l.unit)==="pce"?"le poids d'une pièce":"la densité"} de « ${i.name} » (Ingrédients › Modifier).` : equivText(l.qty,l.unit,i); eq.classList.toggle("bad",!info.ok); }
+    if(eq && l.recId){ const sr=rec(l.recId); eq.innerHTML = sr ? `Recette de base${sr.yieldQty>0?` · produit ${esc(qtyFmt(sr.yieldQty,sr.yieldUnit))}`:""} · <button type="button" class="linkbtn sublink" data-a="open-sub" data-id="${sr.id}">Ouvrir « ${esc(sr.name)} » ›</button>${!info.ok?` · <b class="bad-t">indiquez dans « ${esc(sr.name)} » ce que la recette produit pour utiliser cette unité</b>`:""}` : "Recette supprimée"; eq.classList.remove("bad"); }
+    else if(eq){ const i=ing(l.ingId); eq.textContent = !info.ok ? `Conversion impossible : indiquez ${unitDim(l.unit)==="pce"?"le poids d'une pièce":"la densité"} de « ${i.name} » (Ingrédients › Modifier).` : equivText(l.qty,l.unit,i); eq.classList.toggle("bad",!info.ok); }
   });
   const hN = $("#hN"); if(hN) hN.textContent = nf(c.n,c.n%1?1:0);
   const st = $("#scaleTxt");
   if(st) st.innerHTML = c.factor===1 ? "Quantités de la recette de base." : `Quantités multipliées par <b>${nf(c.factor,2).replace(/,00$/,"")}</b>. La recette de base n'est pas modifiée.`;
   const al = recipeAllergens(r);
   const ac = $("#allergChips");
-  const todoIngs=r.lines.map(l=>ing(l.ingId)).filter(i=>i&&i.todo);
+  const todoIngs=r.lines.map(l=>lineIng(l)).filter(i=>i&&i.todo);
   if(ac) ac.innerHTML = (al.length ? al.map(a=>`<span class="chip">${esc(a.s)}</span>`).join("") : (todoIngs.length?"":`<span class="chip none">Aucun allergène déclaré</span>`))
     + (todoIngs.length?`<span class="chip warnchip">À vérifier : allergènes non confirmés pour ${esc(todoIngs.map(i=>i.name).join(", "))}</span>`:"");
 
@@ -1574,7 +1655,7 @@ function refreshCalc(){
 function stepHTML(r,s,k){
   const anc = null;
   const others = (r.steps||[]).filter(x=>x.id!==s.id);
-  const lines = r.lines.filter(l=>ing(l.ingId));
+  const lines = r.lines.filter(l=>lineIng(l));
   const n = new Map((r.steps||[]).map((x,j)=>[x.id,j+1]));
   const top = `<div class="step-top"><button type="button" class="step-fold" data-a="s-fold" data-s="${s.id}" aria-expanded="${!s.c}" aria-label="${s.c?"Déplier":"Replier"} l'étape ${k+1}"><span class="chev" aria-hidden="true"></span><span class="step-n">Étape ${k+1}</span></button>
       <button class="iconbtn no-print" data-a="del-step" data-s="${s.id}" aria-label="Supprimer l'étape ${k+1}">✕</button></div>`;
@@ -1595,7 +1676,7 @@ function stepHTML(r,s,k){
       const on=(s.after||[]).includes(o.id), blocked=!on && ancestors(r,o.id).has(s.id);
       return `<button type="button" class="tg" data-a="s-after" data-s="${s.id}" data-t="${o.id}" aria-pressed="${on}"${blocked?` disabled title="L'étape ${n.get(o.id)} dépend déjà de celle-ci"`:""}>${n.get(o.id)}</button>`;}).join("")}</div>`:""}
     ${lines.length?`<div class="step-sub">Ingrédients utilisés</div><div class="tgs">${lines.map(l=>
-      `<button type="button" class="tg" data-a="s-line" data-s="${s.id}" data-l="${l.id}" aria-pressed="${(s.lines||[]).includes(l.id)}">${esc(ing(l.ingId).name)}</button>`).join("")}</div>`:""}
+      `<button type="button" class="tg" data-a="s-line" data-s="${s.id}" data-l="${l.id}" aria-pressed="${(s.lines||[]).includes(l.id)}">${esc(lineIng(l).name)}</button>`).join("")}</div>`:""}
     <div class="step-sub">Ustensiles</div>
     <div class="tgs">${(s.tools||[]).map((t,j)=>`<span class="tool">${esc(t)}<button type="button" data-a="s-tool-del" data-s="${s.id}" data-j="${j}" aria-label="Retirer ${esc(t)}">✕</button></span>`).join("")}
       <input type="text" class="tool-in" data-f="s-tool" data-s="${s.id}" list="toolList" placeholder="Ajouter (Entrée)" aria-label="Ajouter un ustensile"></div>
@@ -1637,8 +1718,8 @@ function refreshWorkplan(){
       <li><span class="wp-t">${timeLabel(r,sch,sch.total)}</span><div><b>Service</b></div></li></ol>
     <p class="hint">Les cuissons et repos les plus longs sont lancés en premier ; pendant qu'ils cuisent, les autres étapes se font en parallèle. Une étape attend toujours celles dont elle dépend. Les temps ne changent pas avec le nombre de portions : vérifiez-les pour les grosses quantités.</p>
     <h4>Mise en place, dans l'ordre d'utilisation</h4>
-    <ol class="mep">${mep.used.map(l=>`<li><span>${esc(ing(l.ingId).name)}</span><b>${l.qty>0?qtyFmt(l.qty,l.unit):"–"}</b><i>étape ${sch.num.get(mep.firstUse.get(l.id))}</i></li>`).join("")}</ol>
-    ${mep.rest.length?`<p class="hint">Non rattachés à une étape : ${esc(mep.rest.map(l=>ing(l.ingId).name).join(", "))}.</p>`:""}
+    <ol class="mep">${mep.used.map(l=>`<li><span>${esc(lineIng(l).name)}</span><b>${l.qty>0?qtyFmt(l.qty,l.unit):"–"}</b><i>étape ${sch.num.get(mep.firstUse.get(l.id))}</i></li>`).join("")}</ol>
+    ${mep.rest.length?`<p class="hint">Non rattachés à une étape : ${esc(mep.rest.map(l=>lineIng(l).name).join(", "))}.</p>`:""}
     <h4>Matériel</h4>
     ${tools.length?`<div class="chips">${tools.map(t=>`<span class="chip tool-chip">${esc(t)}</span>`).join("")}</div>`:`<p class="hint" style="margin:0">Aucun ustensile indiqué dans les étapes.</p>`}`;
 }
@@ -1805,8 +1886,9 @@ document.addEventListener("click", e=>{
   const r = rec(ui.recipeId);
   switch(a){
     case "nav": ui.view=el.dataset.v; ui.recipeId=null; ui.from=null; ui.q=""; render(); break;
-    case "open-recipe": ui.view="recipe"; ui.recipeId=el.dataset.id; ui.from=null; render(); break;
-    case "back": { const fr=ui.from; ui.from=null; ui.view=fr==="plan"?"plan":fr==="idea"?"idea":"recipes"; render(); break; }
+    case "open-recipe": ui.view="recipe"; ui.recipeId=el.dataset.id; ui.from=null; ui.recStack=[]; render(); break;
+    case "back": { if(ui.recStack && ui.recStack.length){ const prev=ui.recStack.pop(); if(rec(prev)){ ui.recipeId=prev; ui.view="recipe"; render(); window.scrollTo(0,0); break; } }
+      const fr=ui.from; ui.from=null; ui.view=fr==="plan"?"plan":fr==="idea"?"idea":"recipes"; render(); break; }
     case "new-recipe": {
       const n={id:uid(),name:"",portions:4,price:0,notes:"",lines:[{id:uid(),ingId:"",qty:0,unit:"g"}]};
       state.recipes.push(n); save(); ui.view="recipe"; ui.recipeId=n.id; render();
@@ -1817,8 +1899,10 @@ document.addEventListener("click", e=>{
       (c.steps||[]).forEach(st=>{ const n=uid(); sm[st.id]=n; st.id=n; });
       (c.steps||[]).forEach(st=>{ st.after=(st.after||[]).map(x=>sm[x]).filter(Boolean); st.lines=(st.lines||[]).map(x=>lm[x]).filter(Boolean); }); state.recipes.push(c); save(); ui.recipeId=c.id; render(); toast("Recette dupliquée"); break; }
     case "del-recipe":
-      if(confirm(`Supprimer la recette « ${r.name||"Sans nom"} » ?`)){
-        state.recipes=state.recipes.filter(x=>x.id!==r.id); save(); ui.view="recipes"; render(); toast("Recette supprimée"); }
+      { const users=usedIn(r.id);
+      if(confirm(`Supprimer la recette « ${r.name||"Sans nom"} » ?`+(users.length?`\n\nAttention : elle est utilisée dans ${users.map(x=>"« "+x.name+" »").join(", ")}. Elle sera retirée de ces recettes.`:""))){
+        users.forEach(x=>{ const gone=x.lines.filter(l=>l.recId===r.id).map(l=>l.id); x.lines=x.lines.filter(l=>l.recId!==r.id); (x.steps||[]).forEach(st=>st.lines=(st.lines||[]).filter(id=>!gone.includes(id))); });
+        state.recipes=state.recipes.filter(x=>x.id!==r.id); save(); ui.view="recipes"; render(); toast("Recette supprimée"); } }
       break;
     case "add-line": {
       r.lines.push({id:uid(),ingId:"",qty:0,unit:"g"}); save(); viewRecipe();
@@ -1846,7 +1930,7 @@ document.addEventListener("click", e=>{
     case "add-base": { const n=addBaseList(); save(); render(); toast(n?`${n} ingrédient${n>1?"s":""} ajouté${n>1?"s":""}. Vérifiez les prix avec vos fournisseurs.`:"Tous les ingrédients de la liste sont déjà présents."); } break;
     case "hide-base": state.settings.baseHidden=true; save(); render(); break;
     case "new-ing": openIng(null); break;
-    case "new-ing-inline": openIng(null, id=>{ const rr=rec(ui.recipeId); if(rr){ const empty=rr.lines.find(l=>!l.ingId); const i=ing(id); if(empty&&i){empty.ingId=id;empty.unit=defaultUnit(i);} else if(i){rr.lines.push({id:uid(),ingId:id,qty:0,unit:defaultUnit(i)});} save(); viewRecipe(); } }); break;
+    case "new-ing-inline": openIng(null, id=>{ const rr=rec(ui.recipeId); if(rr){ const empty=rr.lines.find(l=>!l.ingId&&!l.recId); const i=ing(id); if(empty&&i){empty.ingId=id;empty.unit=defaultUnit(i);} else if(i){rr.lines.push({id:uid(),ingId:id,qty:0,unit:defaultUnit(i)});} save(); viewRecipe(); } }); break;
     case "edit-ing": openIng(el.dataset.id); break;
     case "close-dlg": $("#ingDlg").close(); break;
     case "del-ing": {
@@ -2127,9 +2211,9 @@ function pdfRecipePages(pdf,r){
     y+=6; pg.line(M,y,R,y); y+=16;
   };
   hdr();
-  r.lines.filter(l=>ing(l.ingId)).forEach(l=>{
+  r.lines.filter(l=>lineIng(l)).forEach(l=>{
     if(y+22>H-60){ newPage(); hdr(); }
-    pg.text(M,y,ing(l.ingId).name,10.5);
+    pg.text(M,y,lineIng(l).name,10.5);
     pg.text(400,y,l.qty>0?qtyFmt(l.qty,l.unit):"–",10.5,{align:"right"});
     pg.text(R,y,l.qty>0?money(lineCost(l)):"–",10.5,{align:"right"});
     y+=6; pg.line(M,y,R,y,{color:[227,233,236]}); y+=15;
@@ -2165,7 +2249,7 @@ function pdfRecipePages(pdf,r){
       y+=10; if(y+40>H-60) newPage();
       pg.text(M,y,"Mise en place, dans l'ordre d'utilisation",11,{bold:true}); y+=16;
       mep.used.forEach(l=>{ if(y+15>H-60) newPage();
-        pg.text(M,y,ing(l.ingId).name,10.5); pg.text(400,y,l.qty>0?qtyFmt(l.qty,l.unit):"–",10.5,{align:"right"});
+        pg.text(M,y,lineIng(l).name,10.5); pg.text(400,y,l.qty>0?qtyFmt(l.qty,l.unit):"–",10.5,{align:"right"});
         pg.text(R,y,"étape "+sch.num.get(mep.firstUse.get(l.id)),9.5,{align:"right",color:GRAY}); y+=14.5; });
     }
     y+=10; if(y+40>H-60) newPage();
@@ -2480,7 +2564,7 @@ const dateFr=d=>{ try{ return new Date(d+"T12:00:00").toLocaleDateString("fr-FR"
 const idea=id=>(state.notebook||[]).find(x=>x.id===id);
 const mbytes=n=>n>=1e9?nf(n/1e9,1)+" Go":nf(n/1e6,n>=1e7?0:1)+" Mo";
 const norm=s=>String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().trim();
-const hasTodo=r=>r.lines.some(l=>{ const i=ing(l.ingId); return i&&i.todo; });
+const hasTodo=r=>r.lines.some(l=>{ const i=lineIng(l); return i&&i.todo; });
 
 /* Stockage des photos et vidéos : à part, dans la base de l'appareil (jamais dans la sauvegarde texte) */
 const mdb={
