@@ -493,13 +493,23 @@ fieldset.dur legend{font-size:.78rem;font-weight:700;color:var(--muted);padding:
 fieldset.dur label{display:inline-flex;align-items:center;gap:6px;margin-right:12px}
 fieldset.dur input{width:64px}
 fieldset.dur span{font-weight:650;color:var(--muted)}
+.pager{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin:16px 0 4px}
+.pg-n{min-width:44px;min-height:44px;padding:0 10px;border-radius:12px;border:1px solid var(--line-strong);background:var(--surface);color:var(--ink);font:700 1rem var(--font);cursor:pointer}
+.pg-n[aria-current="page"]{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.pg-n:disabled{opacity:.35;cursor:default}
+.pg-arrow{font-size:1.3rem}
+.pg-gap{color:var(--muted);padding:0 2px}
+.pg-count{color:var(--muted);font-weight:600;font-size:.9rem;margin:0 0 10px}
+#ingLetters{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
+.brand svg{width:52px!important;height:52px!important;border-radius:14px}
+.brand .logo-bg{fill:var(--brand)}
 </style>
 </head>
 <body>
 
 <header class="topbar no-print">
   <div class="topbar-in">
-    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="9" fill="#F2A100"/><path d="M9 15.5a4.5 4.5 0 0 1 2.2-8.3 5 5 0 0 1 9.6 0 4.5 4.5 0 0 1 2.2 8.3V22H9z" fill="#0A3F4B"/><rect x="9" y="23.5" width="14" height="3" rx="1.5" fill="#0A3F4B"/></svg><span>Mets</span></div>
+    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect class="logo-bg" width="32" height="32" rx="9"/><path d="M9 15.5a4.5 4.5 0 0 1 2.2-8.3 5 5 0 0 1 9.6 0 4.5 4.5 0 0 1 2.2 8.3V22H9z" fill="#FFFFFF"/><rect x="9" y="23.5" width="14" height="3" rx="1.5" fill="#F2A100"/></svg><span>Mets</span></div>
     <nav id="nav" aria-label="Navigation principale"></nav>
   </div>
 </header>
@@ -1554,32 +1564,41 @@ const recLetter = r => { const ch = normName(r.name||"").charAt(0); return /[a-z
 function renderRecList(){
   const box = $("#recList"); if(!box) return;
   const U = recUI(), all = [...state.recipes].sort((a,b)=>(a.name||"").localeCompare(b.name||"","fr",{sensitivity:"base"}));
-  const list = all.filter(r=>recMatches(r,U.q));
   const bar = $("#recLetters");
   if(!all.length){ box.innerHTML = `<div class="empty">Aucune recette pour l'instant.<br>Commencez par ajouter vos ingrédients avec leur prix, puis créez une recette.</div>`; if(bar) bar.innerHTML=""; return; }
+  let list = all.filter(r=>recMatches(r,U.q));
   if(!list.length){ box.innerHTML = `<div class="empty">Aucune recette ne correspond à « ${esc(U.q)} ».</div>`; if(bar) bar.innerHTML=""; return; }
-  const groups = new Map();
+  const catOf = r => (r.category||"").trim() || "Sans catégorie";
+  const keyOf = U.mode==="cat" ? catOf : recLetter;
   if(U.mode==="cat"){
     const order = recCategories();
-    list.forEach(r=>{ const g=(r.category||"").trim()||"Sans catégorie"; (groups.get(g)||groups.set(g,[]).get(g)).push(r); });
-    const keys = [...groups.keys()].sort((a,b)=>(a==="Sans catégorie")-(b==="Sans catégorie") || (order.indexOf(a)+1||99)-(order.indexOf(b)+1||99) || a.localeCompare(b,"fr"));
-    if(bar) bar.innerHTML = keys.map((g,k)=>`<button type="button" class="lx-l rec-jump wide" data-a="rec-jump" data-g="g${k}">${esc(g)} <b>${groups.get(g).length}</b></button>`).join("");
-    box.innerHTML = keys.map((g,k)=>`<section class="rec-group" id="g${k}"><h3 class="rec-h">${esc(g)} <span>${groups.get(g).length}</span></h3><div class="list">${groups.get(g).map(recRow).join("")}</div></section>`).join("");
-  } else {
-    list.forEach(r=>{ const l=recLetter(r); (groups.get(l)||groups.set(l,[]).get(l)).push(r); });
-    if(bar) bar.innerHTML = "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").map(l=>`<button type="button" class="lx-l rec-jump" data-a="rec-jump" data-g="L${l}"${groups.has(l)?"":" disabled"}>${l}</button>`).join("");
-    box.innerHTML = [...groups.keys()].map(l=>`<section class="rec-group" id="L${l}"><h3 class="rec-h">${l} <span>${groups.get(l).length}</span></h3><div class="list">${groups.get(l).map(recRow).join("")}</div></section>`).join("");
+    const rank = g => g==="Sans catégorie" ? 999 : (order.indexOf(g)+1 || 500);
+    list = [...list].sort((a,b)=>rank(catOf(a))-rank(catOf(b)) || catOf(a).localeCompare(catOf(b),"fr") || (a.name||"").localeCompare(b.name||"","fr",{sensitivity:"base"}));
   }
-  const c = $("#recCount"); if(c) c.textContent = U.q ? `${list.length} sur ${all.length}` : `${all.length} recette${all.length>1?"s":""}`;
+  /* Première position de chaque lettre / catégorie, pour sauter à la bonne page */
+  const first = new Map(), count = new Map();
+  list.forEach((r,k)=>{ const g=keyOf(r); if(!first.has(g)) first.set(g,k); count.set(g,(count.get(g)||0)+1); });
+  const {page, items, from, to} = pageSlice("rec", list);
+  const onPage = new Set(items.map(keyOf));
+  if(bar){
+    bar.innerHTML = U.mode==="cat"
+      ? [...first.keys()].map(g=>`<button type="button" class="lx-l rec-jump wide" data-a="page" data-k="rec" data-p="${first.get(g)}" aria-pressed="${onPage.has(g)}">${esc(g)} <b>${count.get(g)}</b></button>`).join("")
+      : (list.length<=PER_PAGE ? "" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").map(l=>`<button type="button" class="lx-l rec-jump" data-a="page" data-k="rec" data-p="${first.has(l)?first.get(l):0}"${first.has(l)?"":" disabled"} aria-pressed="${onPage.has(l)}">${l}</button>`).join(""));
+  }
+  const groups = new Map();
+  items.forEach(r=>{ const g=keyOf(r); (groups.get(g)||groups.set(g,[]).get(g)).push(r); });
+  box.innerHTML = [...groups.entries()].map(([g,rs])=>`<section class="rec-group"><h3 class="rec-h">${esc(g)} <span>${count.get(g)}</span></h3><div class="list">${rs.map(recRow).join("")}</div></section>`).join("")
+    + pagerHTML("rec", page, list.length);
+  const c = $("#recCount"); if(c) c.textContent = list.length>PER_PAGE ? `${from}–${to} sur ${list.length}` : U.q ? `${list.length} sur ${all.length}` : `${all.length} recette${all.length>1?"s":""}`;
 }
 document.addEventListener("click", e=>{
   const el = e.target.closest("[data-a='rec-mode'],[data-a='rec-jump']"); if(!el) return;
   if(el.dataset.a==="rec-mode"){ recUI().mode = el.dataset.m; state.settings.recMode = el.dataset.m; save.clean=true; save(); save.clean=false;
-    document.querySelectorAll("[data-a='rec-mode']").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.m===el.dataset.m))); renderRecList(); }
+    document.querySelectorAll("[data-a='rec-mode']").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.m===el.dataset.m))); pgUI().rec=0; renderRecList(); }
   else { const t = document.getElementById(el.dataset.g); if(t) t.scrollIntoView({behavior:"smooth", block:"start"}); }
 });
 document.addEventListener("input", e=>{
-  if(e.target.dataset && e.target.dataset.f==="rec-q"){ recUI().q = e.target.value; renderRecList(); }
+  if(e.target.dataset && e.target.dataset.f==="rec-q"){ recUI().q = e.target.value; pgUI().rec=0; renderRecList(); }
   if(e.target.dataset && e.target.dataset.f==="r-cat"){ const r=rec(ui.recipeId); if(r){ r.category=e.target.value.trim(); save(); } }
 });
 
@@ -1734,6 +1753,41 @@ document.addEventListener("input", e=>{
   save(); refreshWorkplan();
 });
 
+/* ========= Pages de 10 éléments ========= */
+const PER_PAGE = 10;
+function pgUI(){ return ui.pg || (ui.pg = {ing:0, rec:0}); }
+/* P[key] = position du premier élément affiché (une lettre peut démarrer une page) */
+function pagerHTML(key, start, total){
+  const pages = Math.max(1, Math.ceil(total/PER_PAGE));
+  const page = Math.min(pages-1, Math.ceil(start/PER_PAGE));
+  if(pages <= 1) return "";
+  const nums = new Set([0, pages-1, page-1, page, page+1].filter(n=>n>=0 && n<pages));
+  const sorted = [...nums].sort((a,b)=>a-b);
+  let html = "", prev = -1;
+  sorted.forEach(n=>{ if(n-prev>1) html += `<span class="pg-gap">…</span>`;
+    html += `<button type="button" class="pg-n" data-a="page" data-k="${key}" data-p="${n*PER_PAGE}"${n===page?' aria-current="page"':""}>${n+1}</button>`; prev=n; });
+  return `<nav class="pager no-print" aria-label="Pages">
+    <button type="button" class="pg-n pg-arrow" data-a="page" data-k="${key}" data-p="${Math.max(0,start-PER_PAGE)}"${start<=0?" disabled":""} aria-label="Page précédente">‹</button>
+    ${html}
+    <button type="button" class="pg-n pg-arrow" data-a="page" data-k="${key}" data-p="${start+PER_PAGE}"${start+PER_PAGE>=total?" disabled":""} aria-label="Page suivante">›</button>
+  </nav>`;
+}
+function pageSlice(key, list){
+  const P = pgUI(); const st = Math.min(Math.max(0, P[key]||0), Math.max(0, list.length-1)); P[key] = st;
+  return {page:st, items:list.slice(st, st+PER_PAGE), from:st+1, to:Math.min(list.length, st+PER_PAGE)};
+}
+function letterOf(name){ const c = normName(name||"").charAt(0); return /[a-z]/.test(c) ? c.toUpperCase() : "#"; }
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a='page'],[data-a='ing-letter']"); if(!el || el.disabled) return;
+  const P = pgUI();
+  if(el.dataset.a === "page"){
+    P[el.dataset.k] = Number(el.dataset.p);
+    if(el.dataset.k === "ing") renderIngList(); else renderRecList();
+  } else { P.ing = Number(el.dataset.p); renderIngList(); }
+  const top = document.getElementById(el.dataset.k === "rec" ? "recTools" : "ingTools");
+  if(top) top.scrollIntoView({behavior:"smooth", block:"start"});
+});
+
 /* ========= Interface ========= */
 let ui = {view:"recipes", recipeId:null, target:{}, q:""};
 const $ = s => document.querySelector(s);
@@ -1790,7 +1844,7 @@ function viewRecipes(){
     ${list.length?`<div class="rec-tabs no-print" role="tablist">
       <button role="tab" data-a="rec-mode" data-m="az" aria-selected="${U.mode!=="cat"}">De A à Z</button>
       <button role="tab" data-a="rec-mode" data-m="cat" aria-selected="${U.mode==="cat"}">Par catégorie</button></div>
-    <div class="rec-tools no-print"><label class="f">Rechercher une recette (nom, catégorie ou ingrédient)<input type="search" data-f="rec-q" value="${esc(U.q)}" placeholder="Ex : tarte, saumon, dessert…"></label><span id="recCount"></span></div>
+    <div class="rec-tools no-print" id="recTools"><label class="f">Rechercher une recette (nom, catégorie ou ingrédient)<input type="search" data-f="rec-q" value="${esc(U.q)}" placeholder="Ex : tarte, saumon, dessert…"></label><span id="recCount"></span></div>
     <nav id="recLetters" class="no-print" aria-label="Aller à"></nav>`:""}
     <div id="recList"></div>
     ${state.ingredients.length===0 ? `<p class="hint">Astuce : ajoutez d'abord vos ingrédients dans l'onglet « Ingrédients ».</p>`:""}`;
@@ -2024,8 +2078,9 @@ function viewIngredients(){
   app.innerHTML = `
     <div class="page-head"><h2>Ingrédients</h2><button class="btn ghost" data-a="nav" data-v="conv">Conversions</button><button class="btn" data-a="new-ing">+ Nouvel ingrédient</button></div>
     ${baseNotice()}
-    <label class="f" style="margin-bottom:12px">Rechercher
-      <input type="text" data-f="ing-search" value="${esc(ui.q)}" placeholder="Nom de l'ingrédient"></label>
+    <label class="f" style="margin-bottom:12px" id="ingTools">Rechercher
+      <input type="search" data-f="ing-search" value="${esc(ui.q)}" placeholder="Premières lettres du nom"></label>
+    <nav id="ingLetters" aria-label="Aller à la lettre"></nav>
     <div class="list" id="ingList"></div>`;
   renderIngList();
 }
@@ -2043,16 +2098,25 @@ function baseNotice(){
   return `<div class="notice no-print"><span><b>Catalogue : ${n} ingrédient${n>1?"s":""} à ajouter</b> (légumes, fruits, viandes, volailles, poissons, fruits de mer, laitiers, céréales, épicerie, épices…), avec rendement, allergènes, conversions et un prix HT daté avec sa source. Vos ingrédients existants ne sont pas modifiés.</span><button class="btn small" data-a="add-base">Ajouter le catalogue</button><button class="btn small ghost" data-a="hide-base">Masquer</button></div>`;
 }
 function renderIngList(){
-  const q = ui.q.trim().toLowerCase();
-  const list = [...state.ingredients].filter(i=>i.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name,"fr"));
-  $("#ingList").innerHTML = list.length ? list.map(i=>{
+  const q = normName(ui.q.trim());
+  const sorted = [...state.ingredients].sort((a,b)=>a.name.localeCompare(b.name,"fr"));
+  /* D'abord ceux qui commencent par le texte tapé, puis ceux qui le contiennent */
+  const list = !q ? sorted : [...sorted.filter(i=>normName(i.name).startsWith(q)), ...sorted.filter(i=>{ const n=normName(i.name); return !n.startsWith(q) && n.includes(q); })];
+  const {page, items, from, to} = pageSlice("ing", list);
+  const bar = $("#ingLetters");
+  if(bar){
+    const first = {}; if(!q) sorted.forEach((i,k)=>{ const l=letterOf(i.name); if(!(l in first)) first[l]=k; });
+    const cur = items.length ? letterOf(items[0].name) : "";
+    bar.innerHTML = q || sorted.length<=PER_PAGE ? "" : "ABCDEFGHIJKLMNOPQRSTUVWXYZ#".split("").map(l=>`<button type="button" class="lx-l" data-a="ing-letter" data-p="${l in first?first[l]:0}"${l in first?"":" disabled"} aria-pressed="${l===cur}">${l}</button>`).join("");
+  }
+  $("#ingList").innerHTML = (list.length>PER_PAGE?`<p class="pg-count">${from}–${to} sur ${list.length} ingrédient${list.length>1?"s":""}</p>`:"") + (list.length ? items.map(i=>{
     const al = i.allergens.map(id=>ALLERGENS.find(a=>a.id===id)?.s).filter(Boolean).join(", ");
     return `<div class="ing-row">
       <div class="rc-main"><div class="t">${esc(i.name)}</div>
       <div class="s">${priceBadge(i)}${convSummary(i)?esc(convSummary(i))+" · ":""}${i.yield<100?`Rendement ${nf(i.yield,0)} % · `:""}${i.supplier?esc(i.supplier)+" · ":""}${i.todo?"<b>Allergènes à vérifier</b>":al?"Allergènes : "+esc(al):"Sans allergène"}</div></div>
       <div class="money">${i.from?(parentOf(i)?(()=>{ const cpg=costPerGram(i); return cpg!==null&&i.pieceG?money(cpg*i.pieceG)+" la pièce":"d'après "+esc(parentOf(i).name); })():'<span class="badge warn">Origine supprimée</span>'):i.price>0?money(i.price)+" "+PRICE_LABEL[i.priceUnit]:'<span class="badge warn">Prix à saisir</span>'}</div>
       <button class="btn small ghost" data-a="edit-ing" data-id="${i.id}">Modifier</button></div>`;
-  }).join("") : `<div class="empty">${state.ingredients.length?"Aucun résultat dans vos ingrédients.":"Aucun ingrédient. Ajoutez-en un avec son prix d'achat."}</div>`;
+  }).join("") : `<div class="empty">${state.ingredients.length?"Aucun résultat dans vos ingrédients.":"Aucun ingrédient. Ajoutez-en un avec son prix d'achat."}</div>`) + pagerHTML("ing", page, list.length);
   if(q) $("#ingList").insertAdjacentHTML("beforeend", catalogSuggestHTML(ui.q.trim()));
 }
 
@@ -2221,7 +2285,7 @@ document.addEventListener("input", e=>{
     case "r-price": r.price=num(e.target.value); save(); refreshCalc(); break;
     case "target": ui.target[r.id]=num(e.target.value); refreshCalc(); break;
     case "l-qty": { const l=r.lines.find(x=>x.id===e.target.dataset.l); l.qty=num(e.target.value); save(); refreshCalc(); break; }
-    case "ing-search": ui.q=e.target.value; renderIngList(); break;
+    case "ing-search": ui.q=e.target.value; pgUI().ing=0; renderIngList(); break;
     case "set-cur": state.settings.currency=e.target.value||"€"; save(); break;
     case "set-fc": { const v=num(e.target.value); if(v>0&&v<100){ state.settings.targetFC=v; save(); } break; }
   }

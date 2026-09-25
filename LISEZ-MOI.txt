@@ -119,3 +119,11 @@ NOUVEAU (version 14)
   les contiennent dans un autre mot, puis ceux du catalogue, ajoutes en un
   geste). Fleches du clavier + Entree possibles.
 - Etapes : temps de travail et de cuisson/repos en heures ET minutes.
+
+NOUVEAU (version 15)
+- Recettes et Ingredients : 10 elements par page, avec numeros de page et
+  fleches. Les lettres A-Z menent directement a la premiere recette (ou au
+  premier ingredient) de cette lettre.
+- Recherche d'ingredients : d'abord ceux qui commencent par le texte tape.
+- Logo plus grand, sur le meme fond que le bouton "Exporter en PDF" ;
+  icone de l'ecran d'accueil assortie.
