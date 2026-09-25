@@ -91,3 +91,13 @@ NOUVEAU (version 11) - TROUVER LE PRIX D'UN INGREDIENT
 - 24 ingredients ajoutes au catalogue : bouquet garni, herbes fraiches en
   botte, clou de girofle, badiane, genievre, piment d'Espelette, vanille,
   safran, fleur de sel, gros sel, vins de cuisine, cognac, fonds deshydrates...
+
+NOUVEAU (version 12) - RECETTES RANGEES
+- Onglet Recettes : deux vues, "De A a Z" et "Par categorie".
+- De A a Z : recettes groupees par lettre ; touchez une lettre pour y aller.
+- Par categorie : Entree, Plat, Accompagnement, Dessert, Patisserie,
+  Base/fond/sauce... et "Sans categorie" pour celles a ranger.
+- Recherche par nom, categorie ou ingredient (ex : "saumon" trouve toutes
+  les recettes qui en contiennent).
+- Dans chaque recette, champ "Categorie" sous le nom (liste proposee ou
+  votre propre categorie).
