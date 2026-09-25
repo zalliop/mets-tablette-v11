@@ -112,3 +112,10 @@ NOUVEAU (version 13) - FICHE RECETTE PLUS CLAIRE
 - Quand vous ajoutez une etape, les precedentes se replient toutes seules.
 - Le choix replie/deplie des cartes est memorise. A l'impression et dans le
   PDF, tout reste affiche.
+
+NOUVEAU (version 14)
+- Recette : pour choisir un ingredient, tapez les premieres lettres. Seuls
+  les ingredients qui commencent par ces lettres s'affichent (puis ceux qui
+  les contiennent dans un autre mot, puis ceux du catalogue, ajoutes en un
+  geste). Fleches du clavier + Entree possibles.
+- Etapes : temps de travail et de cuisson/repos en heures ET minutes.
