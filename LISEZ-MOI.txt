@@ -208,3 +208,21 @@ NOUVEAU (version 24) - UNITES "FEUILLE" ET "PM"
   poivre, huile de friture...). Le champ quantite se grise.
 - Les deux unites suivent le recalcul des portions et des litres, et
   apparaissent dans la mise en place et le PDF.
+
+NOUVEAU (version 25) - BARRE DE NAVIGATION ALLEGEE
+- Recettes, Carnet et Semaine sont regroupes dans un menu deroulant
+  "Recettes" : touchez l'onglet pour ouvrir le menu, puis choisissez.
+- L'onglet affiche la page ouverte (ex. "Semaine") avec une petite fleche.
+- Le menu se ferme en touchant ailleurs ou avec la touche Echap.
+- La barre passe de 9 a 7 onglets.
+
+NOUVEAU (version 26) - BARRE A 4 ONGLETS
+- La barre ne compte plus que 4 onglets, alignes a droite, dans une barre
+  plus haute avec des icones plus grandes :
+    Recettes    : Recettes, Carnet d'idees, Semaine
+    Ingredients : Ingredients, Allergenes, Conversions
+    Histoire    : Histoire & Origines, Lexique, Principes
+    Reglages
+- Touchez un onglet pour ouvrir son menu, puis choisissez la page.
+  L'onglet garde l'icone de la page ouverte.
+- Sur telephone, le menu s'ouvre au-dessus de la barre, sur toute la largeur.

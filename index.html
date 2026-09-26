@@ -573,8 +573,8 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .card{border-radius:20px}
 .page-head h2{font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:-.02em}
 main{position:relative}
-@media (min-width:901px) and (max-width:1640px){ .tab{padding:0 6px;gap:7px;font-size:.86rem} .tw{width:32px;height:32px;border-radius:10px} .ti{width:21px;height:21px} }
-@media (min-width:901px) and (max-width:1440px){ .tab .tw{display:inline-grid} .tab{flex-direction:column;gap:4px;min-height:62px;font-size:.74rem} .brand span{display:none} }
+@media (min-width:901px) and (max-width:1340px){ .tab{padding:0 6px;gap:7px;font-size:.86rem} .tw{width:32px;height:32px;border-radius:10px} .ti{width:21px;height:21px} }
+@media (min-width:901px) and (max-width:1100px){ .tab .tw{display:inline-grid} .tab{flex-direction:column;gap:4px;min-height:62px;font-size:.74rem} .brand span{display:none} }
 @media (max-width:900px){
   .topbar{box-shadow:0 -6px 24px rgba(10,63,75,.10)}
   .topbar-in{padding:8px 6px 6px}
@@ -648,6 +648,53 @@ main{position:relative}
 @media (max-width:420px){ .tab .tl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} .tab .tls{display:block} }
 .num.is-pm{background:var(--surface-2);font-weight:700;color:var(--muted)}
 .num.is-pm::placeholder{color:var(--brand);opacity:1;font-weight:800}
+
+.tabgrp{position:relative;flex:1;display:flex;min-width:0}
+.tab-dd .tl,.tab-dd .tls{white-space:nowrap}
+.tabgrp .tab{width:100%}
+.caret{display:inline-block;width:7px;height:7px;margin-left:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-3px) rotate(45deg);transition:transform .15s}
+.tab-dd[aria-expanded="true"] .caret{transform:translateY(1px) rotate(-135deg)}
+.dd-menu{position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);min-width:210px;z-index:60;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 16px 40px rgba(10,63,75,.18);padding:6px;display:grid;gap:2px}
+.dd-menu[hidden]{display:none}
+.dd-item{display:flex;align-items:center;gap:12px;min-height:48px;padding:6px 12px;border:0;border-radius:12px;background:none;color:var(--ink);font:700 .98rem var(--font);text-align:left;cursor:pointer}
+.dd-item:hover,.dd-item:focus-visible{background:var(--surface-2);outline:none}
+.dd-item[aria-current="page"]{color:var(--brand);background:var(--brand-soft)}
+.dd-item[aria-current="page"] .tw{--tile:#F2A100;--acc:var(--brand-d)}
+@media (max-width:900px){
+  #nav{grid-template-columns:repeat(7,minmax(0,1fr))!important}
+  .tabgrp{display:block}
+  .dd-menu{top:auto;bottom:calc(100% + 10px);left:6px;transform:none}
+  .tab-dd .caret{width:5px;height:5px;margin-left:3px;border-width:1.5px}
+}
+
+/* ===== Barre : 4 onglets à droite, plus haute (v26) ===== */
+.topbar-in{min-height:86px;padding-top:12px;padding-bottom:12px}
+@media (min-width:901px){
+  #nav{flex:1;display:flex!important;justify-content:flex-end;gap:10px}
+  #nav > .tab,#nav > .tabgrp{flex:0 0 auto}
+  #nav .tab{flex-direction:row!important;min-height:64px;padding:0 20px 0 12px!important;gap:12px!important;font-size:1rem!important;border-radius:18px}
+  #nav .tw{width:42px!important;height:42px!important;border-radius:13px!important}
+  #nav .ti{width:27px!important;height:27px!important}
+  #nav .tab .tw{display:inline-grid!important}
+  .brand span{display:inline!important}
+  .tabgrp{flex:0 0 auto}
+  .tabgrp .tab{width:auto}
+  .dd-menu{left:auto;right:0;transform:none;min-width:250px;top:calc(100% + 10px)}
+  .dd-item .tw{width:34px!important;height:34px!important}
+  .dd-item .ti{width:22px!important;height:22px!important}
+}
+@media (max-width:900px){
+  #nav{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+  .topbar-in{min-height:0;padding-top:8px;padding-bottom:8px}
+  .tab{min-height:66px!important;font-size:.74rem!important}
+  .tw{width:38px!important;height:38px!important;border-radius:12px!important}
+  .ti{width:25px!important;height:25px!important}
+  .tab .tl{position:static!important;width:auto!important;height:auto!important;clip:auto!important;overflow:visible!important}
+  .tab .tls{display:none!important}
+  /* menu en feuille au-dessus de la barre, sur toute la largeur */
+  .dd-menu{position:fixed;left:10px;right:10px;bottom:calc(88px + env(safe-area-inset-bottom,0px));top:auto;transform:none;min-width:0}
+  .dd-item{min-height:54px;font-size:1.02rem}
+}
 </style>
 </head>
 <body>
@@ -2062,6 +2109,19 @@ document.addEventListener("click", e=>{
   t.classList.remove("pr-flash"); void t.offsetWidth; t.classList.add("pr-flash");
 });
 
+/* Menus déroulants de la barre */
+function closeDD(except){ document.querySelectorAll(".tab-dd[aria-expanded='true']").forEach(b=>{ if(b!==except){ b.setAttribute("aria-expanded","false"); const m=document.getElementById(b.getAttribute("aria-controls")); if(m) m.hidden=true; } }); }
+document.addEventListener("click", e=>{
+  const dd = e.target.closest("[data-a='nav-dd']");
+  if(dd){ const open = dd.getAttribute("aria-expanded")==="true"; closeDD(dd);
+    dd.setAttribute("aria-expanded", String(!open)); const m=document.getElementById(dd.getAttribute("aria-controls")); if(m){ m.hidden=open; if(!open) m.querySelector(".dd-item")?.focus({preventScroll:true}); } return; }
+  if(!e.target.closest(".dd-menu")) closeDD();
+});
+document.addEventListener("keydown", e=>{
+  const menu = e.target.closest && e.target.closest(".dd-menu");
+  if(e.key==="Escape"){ const open=document.querySelector(".tab-dd[aria-expanded='true']"); if(open){ closeDD(); open.focus(); } return; }
+  if(menu && (e.key==="ArrowDown"||e.key==="ArrowUp")){ e.preventDefault(); const it=[...menu.querySelectorAll(".dd-item")]; const i=it.indexOf(document.activeElement); it[(i+(e.key==="ArrowDown"?1:-1)+it.length)%it.length].focus(); }
+});
 /* ========= Interface ========= */
 let ui = {view:"recipes", recipeId:null, target:{}, q:""};
 const $ = s => document.querySelector(s);
@@ -2081,14 +2141,29 @@ const ICONS={
   lexicon:'<path class="g" d="M2.3 5.2c3.2-1.5 6.4-1.3 9.2.5V21c-2.8-1.7-6-1.9-9.2-.5z"/><path class="g" d="M21.7 5.2c-3.2-1.5-6.4-1.3-9.2.5V21c2.8-1.7 6-1.9 9.2-.5z"/><path class="a" d="M11.2 5.4h1.6V21h-1.6z"/><path class="c" d="M5 9.5c1.6-.5 2.9-.4 4.2.2M15 9.7c1.3-.6 2.6-.7 4.2-.2"/>',
   history:'<path class="g" d="M6.8 2.5h11A2.7 2.7 0 0 1 20.5 5.2v11.3H9.3v3a2.3 2.3 0 1 1-4.6 0V4.6a2.1 2.1 0 0 1 2.1-2.1z"/><path class="a" d="M9.3 16.5h12.2v1.8a3.2 3.2 0 0 1-3.2 3.2H7a2.3 2.3 0 0 0 2.3-2.3z"/><path class="c" d="M9.3 7h7.5M9.3 10.5h5.5"/>',
   principles:'<rect class="g" x="4" y="3.5" width="16" height="18.5" rx="3"/><path class="a" d="M8.5 2h7a1.5 1.5 0 0 1 1.5 1.5V6H7V3.5A1.5 1.5 0 0 1 8.5 2z"/><path class="c" d="M8 13.2l2.6 2.6L16.2 10"/>',
+  conv:'<rect class="g" x="10.8" y="4" width="2.4" height="15" rx="1.2"/><rect class="g" x="5.5" y="19.3" width="13" height="2.5" rx="1.25"/><rect class="a" x="3" y="5" width="18" height="2.4" rx="1.2"/><path class="g" d="M5.3 8.2 2.2 14h6.2zM18.7 8.2 15.6 14h6.2z"/><path class="g" d="M2.2 14.6h6.2a3.1 3.1 0 0 1-6.2 0zM15.6 14.6h6.2a3.1 3.1 0 0 1-6.2 0z"/>',
   settings:'<rect class="g" x="2.5" y="5.8" width="19" height="2.8" rx="1.4"/><rect class="g" x="2.5" y="15.4" width="19" height="2.8" rx="1.4"/><circle class="a" cx="15.5" cy="7.2" r="3.2"/><circle class="a" cx="8.5" cy="16.8" r="3.2"/>'
 };
+/* Barre de navigation : un onglet peut regrouper plusieurs pages dans un menu déroulant */
+const NAV = [
+  {k:"recipes", l:"Recettes", sub:[["recipes","Recettes"],["notebook","Carnet d'idées"],["plan","Semaine"]]},
+  {k:"ingredients", l:"Ingrédients", s:"Ingréd.", sub:[["ingredients","Ingrédients"],["allergens","Allergènes"],["conv","Conversions"]]},
+  {k:"history", l:"Histoire", sub:[["history","Histoire & Origines"],["lexicon","Lexique"],["principles","Principes"]]},
+  {k:"settings", l:"Réglages"}
+];
 function renderNav(){
-  const tabs=[["recipes","Recettes"],["notebook","Carnet"],["plan","Semaine"],["ingredients","Ingrédients"],["allergens","Allergènes"],["lexicon","Lexique"],["history","Histoire"],["principles","Principes"],["settings","Réglages"]];
-  const on = ui.view==="recipe" ? (ui.from==="plan" ? "plan" : ui.from==="idea" ? "notebook" : "recipes") : ui.view==="idea" ? "notebook" : ui.view==="conv" ? "ingredients" : ui.view==="article" ? "history" : ui.view;
-  $("#nav").innerHTML = tabs.map(([k,l])=>
-    `<button class="tab" data-a="nav" data-v="${k}"${on===k?' aria-current="page"':""}><span class="tw"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></span><span class="tl">${l}</span><span class="tls" aria-hidden="true">${({ingredients:"Ingréd.",allergens:"Allerg.",principles:"Principes"})[k]||l}</span></button>`
-  ).join("");
+  const on = ui.view==="recipe" ? (ui.from==="plan" ? "plan" : ui.from==="idea" ? "notebook" : "recipes") : ui.view==="idea" ? "notebook" : ui.view==="article" ? "history" : ui.view;
+  const ico = k => `<span class="tw"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></span>`;
+  $("#nav").innerHTML = NAV.map(t=>{
+    if(!t.sub) return `<button class="tab" data-a="nav" data-v="${t.k}"${on===t.k?' aria-current="page"':""}>${ico(t.k)}<span class="tl">${t.l}</span><span class="tls" aria-hidden="true">${t.s||t.l}</span></button>`;
+    const cur = t.sub.find(([k])=>k===on);
+    const shown = [cur ? cur[0] : t.sub[0][0], t.l];
+    return `<div class="tabgrp">
+      <button class="tab tab-dd" data-a="nav-dd" aria-haspopup="menu" aria-expanded="false" aria-controls="dd-${t.k}"${cur?' aria-current="page"':""}>${ico(shown[0])}<span class="tl">${t.l}<i class="caret" aria-hidden="true"></i></span><span class="tls" aria-hidden="true">${t.s||t.l}<i class="caret" aria-hidden="true"></i></span></button>
+      <div class="dd-menu" id="dd-${t.k}" role="menu" hidden>
+        ${t.sub.map(([k,l])=>`<button class="dd-item" role="menuitem" data-a="nav" data-v="${k}"${on===k?' aria-current="page"':""}>${ico(k)}<span>${l}</span></button>`).join("")}
+      </div></div>`;
+  }).join("");
   updateUsbBadge();
 }
 
