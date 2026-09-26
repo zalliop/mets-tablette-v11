@@ -646,6 +646,8 @@ main{position:relative}
 @media print{ .pr-sec{break-inside:auto} .pr-sum-i{break-inside:avoid} }
 .tls{display:none}
 @media (max-width:420px){ .tab .tl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} .tab .tls{display:block} }
+.num.is-pm{background:var(--surface-2);font-weight:700;color:var(--muted)}
+.num.is-pm::placeholder{color:var(--brand);opacity:1;font-weight:800}
 </style>
 </head>
 <body>
@@ -853,6 +855,8 @@ function recipeAllergens(r){
 const nf = (n,d=2)=> n.toLocaleString("fr-FR",{minimumFractionDigits:d,maximumFractionDigits:d});
 const money = n => nf(n,2)+"\u00A0"+state.settings.currency;
 function qtyFmt(q,u){
+  if(u==="PM") return "PM";
+  if(u==="feuille") return nf(q, q%1?1:0).replace(/,0$/,"")+"\u00A0"+(q>1?"feuilles":"feuille");
   if(u==="portion") return nf(q, q%1?1:0).replace(/,0$/,"")+"\u00A0"+(q>1?"portions":"portion");
   if(u==="g" && q>=1000){ q/=1000; u="kg"; }
   else if(u==="ml" && q>=1000){ q/=1000; u="L"; }
@@ -870,8 +874,10 @@ const inputNum = n => n ? String(n).replace(".",",") : "";
                (jaune et blanc d'œuf tirés de « Œufs »).
    Toutes ces valeurs sont des MOYENNES : vérifiez-les avec vos produits. */
 const SPOON = {"c. à s.":15, "c. à c.":5};
-const ALL_UNITS = ["g","kg","ml","cl","L","c. à s.","c. à c.","pce"];
-const unitDim = u => (u==="g"||u==="kg") ? "mass" : u==="pce" ? "pce" : "vol";
+const ALL_UNITS = ["g","kg","ml","cl","L","c. à s.","c. à c.","pce","feuille","PM"];
+/* « feuille » se compte comme une pièce (gélatine, laurier, brick…) ;
+   « PM » = pour mémoire : ingrédient cité sans quantité, sans coût (sel, poivre, huile de friture…) */
+const unitDim = u => (u==="g"||u==="kg") ? "mass" : (u==="pce"||u==="feuille") ? "pce" : u==="PM" ? "pm" : "vol";
 const toMl = (q,u) => u==="ml"?q : u==="cl"?q*10 : u==="L"?q*1000 : q*(SPOON[u]||0);
 const parentOf = i => (i && i.from) ? ing(i.from) : null;
 function convOf(i){
@@ -884,7 +890,8 @@ function unitsFor(i){
   const c = convOf(i), dim = i.from ? null : dimOfIng(i), ok = new Set();
   if(dim==="mass" || i.from || c.density || c.pieceG) ["g","kg"].forEach(u=>ok.add(u));
   if(dim==="vol" || c.density) ["ml","cl","L","c. à s.","c. à c."].forEach(u=>ok.add(u));
-  if(dim==="pce" || c.pieceG) ok.add("pce");
+  if(dim==="pce" || c.pieceG){ ok.add("pce"); ok.add("feuille"); }
+  ok.add("PM");
   return ALL_UNITS.filter(u=>ok.has(u));
 }
 function defaultUnit(i){
@@ -911,6 +918,7 @@ function costPerGram(i, depth=0){
 }
 /* Coût d'une ligne : calcul direct si l'unité correspond au prix, sinon via les grammes */
 function lineCostInfo(l){
+  if(l.unit==="PM") return {cost:0, ok:true};
   if(l.recId){ if(!(l.qty>0)) return {cost:0, ok:true}; return subCost(l); }
   const i = ing(l.ingId); if(!i || !(l.qty>0)) return {cost:0, ok:true};
   if(!i.from && dimOfIng(i)===unitDim(l.unit)){
@@ -927,7 +935,7 @@ function equivText(q,u,i){
   if(!i || !(q>0)) return "";
   const g = toGrams(q,u,i), c = convOf(i), parts = [];
   if(g!==null && unitDim(u)!=="mass") parts.push("≈ "+qtyFmt(g,"g"));
-  if(g!==null && c.pieceG && u!=="pce") parts.push("≈ "+nf(g/c.pieceG, g/c.pieceG<10?1:0).replace(/,0$/,"")+" pce");
+  if(g!==null && c.pieceG && u!=="pce" && u!=="feuille") parts.push("≈ "+nf(g/c.pieceG, g/c.pieceG<10?1:0).replace(/,0$/,"")+" pce");
   return parts.join(" · ");
 }
 function convSummary(i){
@@ -1391,7 +1399,7 @@ function refreshFoldSummaries(){
   const box=$("#ingCompact");
   if(box){
     const c=calc(r,r.portions);
-    box.innerHTML = r.lines.filter(l=>lineIng(l)).map(l=>`<li><b>${l.qty>0?qtyFmt(l.qty*c.factor,l.unit):"–"}</b><span>${esc(lineIng(l).name)}</span></li>`).join("")
+    box.innerHTML = r.lines.filter(l=>lineIng(l)).map(l=>`<li><b>${(l.unit==="PM"?"PM":l.qty>0?qtyFmt(l.qty*c.factor,l.unit):"–")}</b><span>${esc(lineIng(l).name)}</span></li>`).join("")
       || `<li class="hint">Aucun ingrédient.</li>`;
   }
 }
@@ -2126,10 +2134,10 @@ function viewRecipes(){
 function lineHTML(r,l,factor){
   const i = lineIng(l);
   const sub = l.recId ? rec(l.recId) : null;
-  const units = l.recId ? ["portion", ...subDims(sub)] : unitsFor(i);
+  const units = l.recId ? ["portion", ...subDims(sub), "PM"] : unitsFor(i);
   return `<div class="line" data-line="${l.id}">
     <div class="ingsel ingpick"><input type="text" class="pick-in${l.recId?" is-sub":""}" data-f="l-pick" data-l="${l.id}" value="${i?esc(i.name):""}" placeholder="Tapez les premières lettres…" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="pk-${l.id}" aria-label="Ingrédient"><div class="pick-list" id="pk-${l.id}" role="listbox" hidden></div></div>
-    <input type="text" inputmode="decimal" class="num" data-f="l-qty" data-l="${l.id}" value="${inputNum(l.qty)}" aria-label="Quantité" placeholder="0">
+    <input type="text" inputmode="decimal" class="num${l.unit==="PM"?" is-pm":""}" data-f="l-qty" data-l="${l.id}" value="${l.unit==="PM"?"":inputNum(l.qty)}" aria-label="Quantité" placeholder="${l.unit==="PM"?"PM":"0"}"${l.unit==="PM"?" disabled":""}>
     <select data-f="l-unit" data-l="${l.id}" aria-label="Unité">${units.map(u=>`<option${u===l.unit?" selected":""}>${u}</option>`).join("")}</select>
     <div class="co" data-co="${l.id}"></div>
     <button class="iconbtn" data-a="del-line" data-l="${l.id}" aria-label="Retirer la ligne">✕</button>
@@ -2215,9 +2223,10 @@ function refreshCalc(){
   r.lines.forEach(l=>{
     const sc = document.querySelector(`[data-sc="${l.id}"]`);
     const co = document.querySelector(`[data-co="${l.id}"]`);
-    if(sc) sc.textContent = l.qty>0 ? qtyFmt(l.qty*c.factor,l.unit) : "–";
+    if(sc) sc.textContent = (l.unit==="PM" ? "PM" : l.qty>0 ? qtyFmt(l.qty*c.factor,l.unit) : "–");
     const info = lineCostInfo(l);
-    if(co){ co.textContent = lineIng(l) && l.qty>0 ? (info.ok ? money(info.cost*c.factor) : "?") : "–"; co.title = info.ok ? "" : "Conversion impossible"; }
+    if(co && l.unit==="PM"){ co.textContent = "–"; co.title = "Pour mémoire : pas de coût"; }
+    else if(co){ co.textContent = lineIng(l) && l.qty>0 ? (info.ok ? money(info.cost*c.factor) : "?") : "–"; co.title = info.ok ? "" : "Conversion impossible"; }
     const eq = document.querySelector(`[data-eq="${l.id}"]`);
     if(eq && l.recId){ const sr=rec(l.recId); eq.innerHTML = sr ? `Recette de base${sr.yieldQty>0?` · produit ${esc(qtyFmt(sr.yieldQty,sr.yieldUnit))}`:""} · <button type="button" class="linkbtn sublink" data-a="open-sub" data-id="${sr.id}">Ouvrir « ${esc(sr.name)} » ›</button>${!info.ok?` · <b class="bad-t">indiquez dans « ${esc(sr.name)} » ce que la recette produit pour utiliser cette unité</b>`:""}` : "Recette supprimée"; eq.classList.remove("bad"); }
     else if(eq){ const i=ing(l.ingId); eq.textContent = !info.ok ? `Conversion impossible : indiquez ${unitDim(l.unit)==="pce"?"le poids d'une pièce":"la densité"} de « ${i.name} » (Ingrédients › Modifier).` : equivText(l.qty,l.unit,i); eq.classList.toggle("bad",!info.ok); }
@@ -2336,7 +2345,7 @@ function refreshWorkplan(){
       <li><span class="wp-t">${timeLabel(r,sch,sch.total)}</span><div><b>Service</b></div></li></ol>
     <p class="hint">Les cuissons et repos les plus longs sont lancés en premier ; pendant qu'ils cuisent, les autres étapes se font en parallèle. Une étape attend toujours celles dont elle dépend. Les temps ne changent pas avec le nombre de portions : vérifiez-les pour les grosses quantités.</p>
     <h4>Mise en place, dans l'ordre d'utilisation</h4>
-    <ol class="mep">${mep.used.map(l=>`<li><span>${esc(lineIng(l).name)}</span><b>${l.qty>0?qtyFmt(l.qty,l.unit):"–"}</b><i>étape ${sch.num.get(mep.firstUse.get(l.id))}</i></li>`).join("")}</ol>
+    <ol class="mep">${mep.used.map(l=>`<li><span>${esc(lineIng(l).name)}</span><b>${(l.unit==="PM"?"PM":l.qty>0?qtyFmt(l.qty,l.unit):"–")}</b><i>étape ${sch.num.get(mep.firstUse.get(l.id))}</i></li>`).join("")}</ol>
     ${mep.rest.length?`<p class="hint">Non rattachés à une étape : ${esc(mep.rest.map(l=>lineIng(l).name).join(", "))}.</p>`:""}
     <h4>Matériel</h4>
     ${tools.length?`<div class="chips">${tools.map(t=>`<span class="chip tool-chip">${esc(t)}</span>`).join("")}</div>`:`<p class="hint" style="margin:0">Aucun ustensile indiqué dans les étapes.</p>`}`;
@@ -2654,7 +2663,9 @@ document.addEventListener("change", e=>{
     if(i && !unitsFor(i).includes(l.unit)) l.unit=defaultUnit(i);
     save(); viewRecipe();
   } else if(f==="l-unit"){
-    const l=r.lines.find(x=>x.id===e.target.dataset.l); l.unit=e.target.value; save(); refreshCalc();
+    const l=r.lines.find(x=>x.id===e.target.dataset.l); const was=l.unit; l.unit=e.target.value;
+    if(l.unit==="PM") l.qty=0;
+    save(); if(was==="PM" || l.unit==="PM"){ viewRecipe(); if(was==="PM") setTimeout(()=>document.querySelector(`[data-f="l-qty"][data-l="${l.id}"]`)?.focus(),30); } else refreshCalc();
   } else if(f==="s-tool"){ addTool(r, e.target.dataset.s, e.target.value); }
 });
 
@@ -2832,7 +2843,7 @@ function pdfRecipePages(pdf,r){
   r.lines.filter(l=>lineIng(l)).forEach(l=>{
     if(y+22>H-60){ newPage(); hdr(); }
     pg.text(M,y,lineIng(l).name,10.5);
-    pg.text(400,y,l.qty>0?qtyFmt(l.qty,l.unit):"–",10.5,{align:"right"});
+    pg.text(400,y,(l.unit==="PM"?"PM":l.qty>0?qtyFmt(l.qty,l.unit):"–"),10.5,{align:"right"});
     pg.text(R,y,l.qty>0?money(lineCost(l)):"–",10.5,{align:"right"});
     y+=6; pg.line(M,y,R,y,{color:[227,233,236]}); y+=15;
   });
@@ -2869,7 +2880,7 @@ function pdfRecipePages(pdf,r){
       y+=10; if(y+40>H-60) newPage();
       pg.text(M,y,"Mise en place, dans l'ordre d'utilisation",11,{bold:true}); y+=16;
       mep.used.forEach(l=>{ if(y+15>H-60) newPage();
-        pg.text(M,y,lineIng(l).name,10.5); pg.text(400,y,l.qty>0?qtyFmt(l.qty,l.unit):"–",10.5,{align:"right"});
+        pg.text(M,y,lineIng(l).name,10.5); pg.text(400,y,(l.unit==="PM"?"PM":l.qty>0?qtyFmt(l.qty,l.unit):"–"),10.5,{align:"right"});
         pg.text(R,y,"étape "+sch.num.get(mep.firstUse.get(l.id)),9.5,{align:"right",color:GRAY}); y+=14.5; });
     }
     y+=10; if(y+40>H-60) newPage();

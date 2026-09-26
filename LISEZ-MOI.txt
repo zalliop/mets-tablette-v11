@@ -200,3 +200,11 @@ NOUVEAU (version 23) - ONGLET PRINCIPES
   nettoyage et desinfection, contaminations croisees, allergenes, dechets et
   nuisibles, PMS et HACCP, documents et controles, references.
 - "Retour au sommaire" a la fin de chaque section. Bouton Imprimer.
+
+NOUVEAU (version 24) - UNITES "FEUILLE" ET "PM"
+- "feuille" : se compte comme une piece (gelatine, laurier, feuilles de
+  brick, de filo...). Le cout utilise le poids d'une piece de l'ingredient.
+- "PM" (pour memoire) : ingredient cite sans quantite et sans cout (sel,
+  poivre, huile de friture...). Le champ quantite se grise.
+- Les deux unites suivent le recalcul des portions et des litres, et
+  apparaissent dans la mise en place et le PDF.
