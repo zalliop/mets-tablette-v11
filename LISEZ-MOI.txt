@@ -154,3 +154,38 @@ NOUVEAU (version 18) - RECETTES DE BASE
   la recette de depart. "Utilisee dans" liste les recettes qui s'en servent.
 - Impossible de creer une boucle (la bechamel ne peut pas contenir la Mornay).
 - Supprimer une recette de base previent si elle est utilisee ailleurs.
+
+NOUVEAU (version 19) - HISTOIRE & ORIGINES
+- Fiche recette : entre la categorie et les ingredients, un encadre avec le
+  titre d'origine, le pays ou la region, et le lien "Decouvrir l'histoire de
+  cette recette". "Modifier" pour remplir ou choisir l'article.
+- Nouvel onglet "Histoire" : la rubrique Histoire & Origines (articles de A a
+  Z, recherche, 10 par page). Chaque article : titre, nom d'origine, origine,
+  epoque, resume, texte, sources, recettes liees. Brouillon ou publie.
+- "Ecrire l'histoire de cette recette" cree l'article et le relie.
+- Deux articles d'exemple (gratin dauphinois, sable) a verifier et completer.
+
+NOUVEAU (version 20) - APPARENCE
+- Barre de navigation sur toute la largeur de l'ecran.
+- Nouvelles icones dans le style de la toque : tuile bleu-vert, dessin blanc,
+  detail orange. L'onglet ouvert passe en orange.
+- Arriere-plan a motifs de cuisine (toque, fouet, poisson, carotte, casserole,
+  couteau, feuille) qui reste fixe pendant que la page defile.
+- Cartes aux angles plus doux et ombres legeres.
+
+NOUVEAU (version 21)
+- Nouveau logo : la toque blanche avec ses trois plis et son bandeau jaune.
+- Le logo Mets en haut a gauche est cliquable : il ramene a la page
+  d'accueil (liste des recettes) depuis n'importe quel ecran.
+- Icone de l'ecran d'accueil mise a jour avec la nouvelle toque.
+
+NOUVEAU (version 22) - CALCUL EN LITRES OU EN KILOS
+- En haut de chaque recette : "Par portions" ou "En litres / kilos".
+- En litres / kilos : indiquez d'abord ce que la recette produit telle
+  qu'elle est ecrite (ex. 1 L de fumet). Ensuite, tapez 2 L, 5 L, 500 ml... :
+  toutes les quantites se recalculent.
+- Le ticket donne le cout au litre (ou au kilo), le cout total, et, si vous
+  indiquez un prix de vente au litre, la marge et le food cost.
+- Unites : L, cl, ml, kg, g. Changer d'unite convertit sans recalculer.
+- Une recette en litres s'utilise directement dans une autre (ex. 50 cl de
+  fumet dans une sauce).

@@ -77,6 +77,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .tab:hover{background:var(--surface-2);color:var(--ink)}
 .tab[aria-current="page"]{background:var(--brand-soft);color:var(--brand)}
 .tw{display:inline-grid;place-items:center}
+/* 8 onglets : on resserre sur les écrans moyens */
+@media (min-width:901px) and (max-width:1340px){ .tab{padding:0 9px;gap:6px;font-size:.88rem} .topbar-in{gap:10px;padding:10px 14px} }
+
 .ti{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 
 #usbBadge:empty{display:none}
@@ -275,7 +278,7 @@ dialog[open]{animation:pop .2s ease-out}
   .topbar{position:fixed;top:auto;bottom:0;left:0;right:0;border-bottom:0;border-top:1px solid var(--line);padding:0 0 env(safe-area-inset-bottom,0px)}
   .topbar-in{padding:6px 8px 4px;gap:0}
   .brand{display:none}
-  #nav{width:100%;display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  #nav{width:100%;display:grid;grid-template-columns:repeat(8,1fr);gap:1px}
   .tab{flex-direction:column;gap:3px;padding:5px 0 4px;min-height:58px;font-size:.7rem;justify-content:center;border-radius:var(--r-md);min-width:0}
   .tab:hover{background:none}
   .tw{width:min(56px,100%);height:30px;border-radius:99px;transition:background .15s}
@@ -314,7 +317,7 @@ dialog[open]{animation:pop .2s ease-out}
   .dlg-actions .btn{flex:1}
   .card{padding:16px}
 }
-@media (max-width:420px){ .tab{font-size:.6rem;letter-spacing:-.02em} .tw{width:40px} }
+@media (max-width:420px){ .tab{font-size:.56rem;letter-spacing:-.03em} .tw{width:36px} }
 @media (min-width:1280px){ main{padding-top:32px} .plan-grid{grid-template-columns:repeat(4,1fr)} }
 @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
 
@@ -511,13 +514,109 @@ fieldset.dur span{font-weight:650;color:var(--muted)}
 fieldset.yieldset input{width:100px}
 .yieldset select{width:90px}
 .used-in{margin:-8px 0 18px;font-size:.92rem;color:var(--muted)}
+.origin-box{display:flex;align-items:center;gap:16px;margin:-6px 0 22px;padding:16px 20px;border-radius:var(--r-md);background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--brand)}
+.origin-box.empty{justify-content:space-between;color:var(--muted);font-weight:600;border-left-color:var(--line-strong);padding:10px 16px}
+.origin-box.editing{display:block}
+.origin-main{flex:1;min-width:0}
+.origin-name{font:italic 750 1.3rem var(--display);letter-spacing:-.005em}
+.origin-place{display:flex;align-items:center;gap:6px;color:var(--muted);font-weight:600;margin-top:2px}
+.origin-place svg{width:18px;height:18px;fill:none;stroke:var(--brand);stroke-width:2}
+.origin-link{margin-top:10px;border:0;background:none;padding:0;color:var(--brand);font:750 1rem var(--font);cursor:pointer;text-decoration:underline;text-underline-offset:4px;min-height:32px}
+.origin-link.muted{color:var(--muted)}
+.origin-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.hist-intro{color:var(--muted);max-width:62ch;margin:-4px 0 16px}
+.hist-card{display:grid;gap:4px;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--brand);border-radius:var(--r-md);padding:14px 18px;margin-bottom:10px;cursor:pointer;font:inherit;color:inherit}
+.hist-card:hover{border-color:var(--brand)}
+.hist-t{font:750 1.15rem var(--display)}
+.hist-m{color:var(--brand);font-weight:650;font-size:.9rem}
+.hist-s{color:var(--ink);line-height:1.5}
+.hist-r{color:var(--muted);font-size:.85rem}
+.hist-article{max-width:720px;margin:0 auto;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg,18px);padding:clamp(20px,4vw,44px)}
+.hist-kicker{margin:0;color:var(--brand);font-weight:750;font-size:.85rem;letter-spacing:.02em}
+.hist-article h1{font:800 clamp(1.8rem,4vw,2.5rem)/1.15 var(--display);margin:6px 0 16px}
+.hist-facts{display:flex;flex-wrap:wrap;gap:10px 28px;margin:0 0 18px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.hist-facts dt{font-size:.75rem;font-weight:700;color:var(--muted)}
+.hist-facts dd{margin:0;font-weight:650}
+.hist-lede{font-size:1.15rem;line-height:1.55;font-weight:500;margin:0 0 18px}
+.hist-body p,.hist-sources p{line-height:1.7;margin:0 0 14px;max-width:66ch}
+.hist-body h3,.hist-sources h3{font:750 1.15rem var(--display);margin:24px 0 8px}
+.hist-sources{margin-top:26px;padding-top:6px;border-top:1px solid var(--line);color:var(--muted);font-size:.93rem}
+.dlg-wide{max-width:760px}
+.checkline{display:flex;align-items:center;gap:10px;font-weight:600}
+.checkline input{width:20px;height:20px;accent-color:var(--brand)}
+
+/* ================= Apparence moderne (v20) ================= */
+html{background:var(--bg)}
+body{background:transparent!important}
+/* Arrière-plan fixe : il reste en place, la page défile par-dessus (même principe que le ticket du coût de revient) */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(1200px 600px at 12% -10%,var(--brand-soft),transparent 60%),radial-gradient(900px 500px at 110% 110%,rgba(242,161,0,.10),transparent 60%),url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%22320%22%20height%3D%22320%22%20viewBox%3D%220%200%20320%20320%22%20fill%3D%22none%22%20stroke%3D%22%230F5C6B%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%20opacity%3D%22.11%22%3E%20%3Cg%20transform%3D%22translate%2824%2022%29%22%3E%3Cpath%20d%3D%22M9%2015.5a4.5%204.5%200%200%201%202.2-8.3%205%205%200%200%201%209.6%200%204.5%204.5%200%200%201%202.2%208.3V22H9z%22%20transform%3D%22scale%281.6%29%22/%3E%3Cpath%20d%3D%22M14.4%2038.5h22.4%22%20/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%28190%2030%29%20rotate%2820%29%22%3E%3Cpath%20d%3D%22M10%200v26M10%2026c-6%200-9%208-9%2016h18c0-8-3-16-9-16z%22/%3E%3Cpath%20d%3D%22M4%2032c4%202%208%202%2012%200%22/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%28108%20118%29%22%3E%3Cpath%20d%3D%22M0%2018c10-14%2030-14%2042%200-12%2014-32%2014-42%200z%22/%3E%3Cpath%20d%3D%22M42%2018l12-9v18z%22/%3E%3Ccircle%20cx%3D%2212%22%20cy%3D%2215%22%20r%3D%221.5%22/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%28250%20150%29%20rotate%28-25%29%22%3E%3Cpath%20d%3D%22M6%200c3%203%204%207%202%2012M14%201c-1%204%200%208-4%2011M22%204c-4%202-6%206-10%208%22/%3E%3Cpath%20d%3D%22M11%2012c-6%206-8%2024-4%2038%208-10%2012-26%2010-36z%22/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%2830%20190%29%22%3E%3Cpath%20d%3D%22M0%2012h52M6%2012v16a6%206%200%200%200%206%206h28a6%206%200%200%200%206-6V12%22/%3E%3Cpath%20d%3D%22M18%2012V8a8%208%200%200%201%2016%200v4M-4%2012h4M52%2012h4%22/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%28150%20230%29%20rotate%28-35%29%22%3E%3Cpath%20d%3D%22M0%200h8v40a4%204%200%200%201-8%200zM4%2044v18%22/%3E%3Cellipse%20cx%3D%224%22%20cy%3D%22-8%22%20rx%3D%226%22%20ry%3D%229%22/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%28240%20250%29%22%3E%3Cpath%20d%3D%22M0%2030C0%2012%2014%200%2034%200c0%2020-12%2034-30%2034z%22/%3E%3Cpath%20d%3D%22M4%2030L24%2010%22/%3E%3C/g%3E%20%3Cg%20transform%3D%22translate%28100%2020%29%20rotate%2815%29%22%3E%3Cpath%20d%3D%22M0%200l8%2030%206-2L6-2zM6%2028l4%2022%22/%3E%3C/g%3E%20%3C/svg%3E") 0 0/320px 320px repeat,var(--bg)}
+@media (prefers-color-scheme: dark){ body::before{opacity:.9} }
+/* Barre de navigation pleine largeur */
+.topbar{background:var(--bar);box-shadow:0 6px 24px rgba(10,63,75,.08)}
+.topbar-in{max-width:none;padding:10px clamp(14px,2.2vw,32px);gap:clamp(10px,1.6vw,28px)}
+.brand{margin-right:0;flex:none}
+#nav{flex:1;display:flex;justify-content:space-between;gap:6px}
+.tab{flex:1;justify-content:center;gap:10px;padding:0 10px;min-height:54px;border-radius:16px;font-weight:700;color:var(--ink)}
+.tab:hover{background:var(--surface-2)}
+.tab[aria-current="page"]{background:var(--surface);color:var(--brand);box-shadow:0 2px 10px rgba(10,63,75,.12),inset 0 0 0 1.5px var(--brand-soft)}
+/* Icônes en tuiles, comme la toque */
+.tw{--tile:var(--brand);--acc:#F2A100;width:36px;height:36px;border-radius:11px;background:var(--tile);display:inline-grid;place-items:center;flex:none;box-shadow:0 2px 6px rgba(10,63,75,.22);transition:transform .15s,background .15s}
+.tab:hover .tw{transform:translateY(-1px)}
+.tab[aria-current="page"] .tw{--tile:#F2A100;--acc:var(--brand-d)}
+.ti{width:24px;height:24px;stroke:none}
+.ti .g{fill:#fff}
+.ti .a{fill:var(--acc)}
+.ti .c{fill:none;stroke:var(--tile);stroke-width:2;stroke-linecap:round}
+/* Cartes plus douces */
+.card,.lx-e,.hist-card,.row-card,.origin-box{box-shadow:0 1px 2px rgba(10,63,75,.05),0 8px 24px rgba(10,63,75,.06)}
+.card{border-radius:20px}
+.page-head h2{font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:-.02em}
+main{position:relative}
+@media (min-width:901px) and (max-width:1340px){ .tab{padding:0 6px;gap:7px;font-size:.86rem} .tw{width:32px;height:32px;border-radius:10px} .ti{width:21px;height:21px} }
+@media (min-width:901px) and (max-width:1160px){ .tab .tw{display:inline-grid} .tab{flex-direction:column;gap:4px;min-height:62px;font-size:.74rem} .brand span{display:none} }
+@media (max-width:900px){
+  .topbar{box-shadow:0 -6px 24px rgba(10,63,75,.10)}
+  .topbar-in{padding:8px 6px 6px}
+  #nav{display:grid;grid-template-columns:repeat(8,1fr);gap:0}
+  .tab{flex-direction:column;gap:4px;min-height:60px;padding:4px 0;font-size:.66rem;border-radius:14px;box-shadow:none!important;background:none!important;color:var(--muted)}
+  .tab[aria-current="page"]{color:var(--brand)}
+  .tw{width:34px;height:34px;border-radius:10px}
+  .tab[aria-current="page"] .tw{background:#F2A100;transform:translateY(-2px)}
+  .ti{width:22px;height:22px}
+}
+@media (max-width:420px){ .tab{font-size:.56rem;letter-spacing:-.03em} .tw{width:31px;height:31px;border-radius:9px} .ti{width:20px;height:20px} }
+@media print{ body::before{display:none} }
+.brand{text-decoration:none;color:inherit;border-radius:16px;padding:4px 8px 4px 4px;transition:background .15s}
+.brand:hover{background:var(--surface-2)}
+.brand:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.brand svg{box-shadow:0 3px 10px rgba(10,63,75,.25)}
+.scale-tabs{display:inline-flex;background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:4px;gap:4px;margin:0 0 12px}
+.scale-tabs button{min-height:40px;padding:0 16px;border:0;border-radius:10px;background:none;color:var(--muted);font:700 .92rem var(--font);cursor:pointer}
+.scale-tabs button[aria-selected="true"]{background:var(--brand);color:var(--on-brand);box-shadow:0 2px 8px rgba(10,63,75,.2)}
+.yq-field{display:grid;gap:6px}
+.f-l{font-size:.8rem;font-weight:700;color:var(--muted)}
+.yq-row{display:grid;grid-template-columns:1fr 92px;gap:8px}
+.yq-hint{font-size:.8rem;color:var(--warn,#8a5a00);font-weight:600;line-height:1.35}
 </style>
 </head>
 <body>
 
 <header class="topbar no-print">
   <div class="topbar-in">
-    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><rect class="logo-bg" width="32" height="32" rx="9"/><path d="M9 15.5a4.5 4.5 0 0 1 2.2-8.3 5 5 0 0 1 9.6 0 4.5 4.5 0 0 1 2.2 8.3V22H9z" fill="#FFFFFF"/><rect x="9" y="23.5" width="14" height="3" rx="1.5" fill="#F2A100"/></svg><span>Mets</span></div>
+    <a class="brand" href="#" data-a="home" aria-label="Mets – page d'accueil"><svg viewBox="0 0 1254 1254" aria-hidden="true"><rect class="logo-bg" width="1254" height="1254" rx="300"/><g transform="translate(138 118) scale(.78)"><g fill="#fff">
+<circle cx="627" cy="385" r="272"/>
+<circle cx="338" cy="532" r="222"/>
+<circle cx="916" cy="532" r="222"/>
+<path d="M232 600 C 262 720 330 770 338 1000 L 916 1000 C 924 770 992 720 1022 600 Z"/>
+<path d="M338 1048 Q627 1004 916 1048 L916 1152 Q916 1186 882 1183 Q627 1160 372 1183 Q338 1186 338 1152 Z"/>
+</g>
+<path d="M338 970 Q627 912 916 970 L916 1027 Q627 982 338 1027 Z" fill="#F7B011"/>
+<g fill="#003F4A">
+<path d="M592 408 A35 35 0 0 1 662 408 L637 902 A10 10 0 0 1 617 902 Z"/>
+<path d="M362 508 A30 30 0 0 1 414 484 Q 506 690 521 904 A8.5 8.5 0 0 1 504 906 Q 470 702 362 508 Z"/>
+<path d="M892 508 A30 30 0 0 0 840 484 Q 748 690 733 904 A8.5 8.5 0 0 0 750 906 Q 784 702 892 508 Z"/>
+</g></g></svg><span>Mets</span></a>
     <nav id="nav" aria-label="Navigation principale"></nav>
   </div>
 </header>
@@ -529,6 +628,7 @@ fieldset.yieldset input{width:100px}
 <dialog id="planDlg"></dialog>
 <dialog id="mediaDlg"></dialog>
 <dialog id="lexDlg"></dialog>
+<dialog id="histDlg"></dialog>
 <div id="toast" class="toast" role="status"></div>
 <input type="file" id="fileIn" accept="application/json,.json" hidden>
 <input type="file" id="camIn" accept="image/*,video/*" capture="environment" hidden>
@@ -1164,7 +1264,7 @@ function recRow(r){
   const c = calc(r), cls = fcClass(c.fc), al = recipeAllergens(r).length;
   return `<button class="row-card st-${cls}" data-a="open-recipe" data-id="${r.id}">
     <div class="rc-main"><div class="t">${esc(r.name||"Sans nom")}</div>
-    <div class="s">${r.category?`<span class="rcat">${esc(r.category)}</span> · `:""}${r.portions} portions · ${r.lines.length} ingrédient${r.lines.length>1?"s":""} · ${al} allergène${al>1?"s":""}</div></div>
+    <div class="s">${r.category?`<span class="rcat">${esc(r.category)}</span> · `:""}${recAmount(r)} · ${r.lines.length} ingrédient${r.lines.length>1?"s":""} · ${al} allergène${al>1?"s":""}</div></div>
     <div class="money">${money(c.perPortion)} / portion</div>
     <span class="badge ${cls}">${c.fc===null?"–":nf(c.fc,0)+" %"}</span></button>`;
 }
@@ -1366,7 +1466,7 @@ document.addEventListener("input", e=>{
 
 /* ========= Pages de 10 éléments ========= */
 const PER_PAGE = 10;
-function pgUI(){ return ui.pg || (ui.pg = {ing:0, rec:0, lex:0}); }
+function pgUI(){ return ui.pg || (ui.pg = {ing:0, rec:0, lex:0, hist:0}); }
 /* P[key] = position du premier élément affiché (une lettre peut démarrer une page) */
 function pagerHTML(key, start, total){
   const pages = Math.max(1, Math.ceil(total/PER_PAGE));
@@ -1393,9 +1493,9 @@ document.addEventListener("click", e=>{
   const P = pgUI();
   if(el.dataset.a === "page"){
     P[el.dataset.k] = Number(el.dataset.p);
-    if(el.dataset.k === "ing") renderIngList(); else if(el.dataset.k === "lex") renderLexList(); else renderRecList();
+    if(el.dataset.k === "ing") renderIngList(); else if(el.dataset.k === "lex") renderLexList(); else if(el.dataset.k === "hist") renderHistList(); else renderRecList();
   } else { P.ing = Number(el.dataset.p); renderIngList(); }
-  const top = document.getElementById(el.dataset.k === "rec" ? "recTools" : el.dataset.k === "lex" ? "lexList" : "ingTools");
+  const top = document.getElementById(el.dataset.k === "rec" ? "recTools" : el.dataset.k === "lex" ? "lexList" : el.dataset.k === "hist" ? "histList" : "ingTools");
   if(top) top.scrollIntoView({behavior:"smooth", block:"start"});
 });
 
@@ -1456,6 +1556,282 @@ document.addEventListener("change", e=>{
   r.yieldUnit = e.target.value; save(); viewRecipe();
 });
 
+/* ========= Histoire & Origines =========
+   state.history = [{id, slug, title, originName, place, period, summary, body, sources, published, updatedAt}]
+   Chaque recette peut avoir : r.originName (titre d'origine), r.originPlace (pays / région),
+   r.historyId (article lié). Un article peut servir à plusieurs recettes (variantes).
+   Mise en forme du texte : une ligne vide sépare les paragraphes ; « ## » en début
+   de ligne fait un intertitre. */
+function histList(){ return state.history || (state.history = []); }
+function hist(id){ return histList().find(a=>a.id===id) || null; }
+function histSlug(t){ return normName(t).replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"") || "article"; }
+function histRecipes(id){ return state.recipes.filter(r=>r.historyId===id); }
+function histUI(){ return ui.hi || (ui.hi = {q:""}); }
+function histBodyHTML(text){
+  return String(text||"").split(/\n\s*\n/).map(p=>p.trim()).filter(Boolean).map(p=>
+    p.startsWith("## ") ? `<h3>${esc(p.slice(3))}</h3>` : `<p>${esc(p).replace(/\n/g,"<br>")}</p>`).join("");
+}
+function histSiteUrl(a){ const W=window.METS_WP; return W && W.historyUrl && a && a.published!==false ? W.historyUrl + encodeURIComponent(a.slug||histSlug(a.title)) + "/" : ""; }
+
+/* --- Encadré sur la fiche recette --- */
+function originBoxHTML(r){
+  const a = r.historyId ? hist(r.historyId) : null;
+  const name = (r.originName||"").trim() || (a && a.originName) || "";
+  const place = (r.originPlace||"").trim() || (a && a.place) || "";
+  const editing = ui.originEdit === r.id;
+  if(editing){
+    const opts = [...histList()].sort((x,y)=>x.title.localeCompare(y.title,"fr"));
+    return `<section class="origin-box editing" aria-label="Origine et histoire">
+      <div class="two">
+        <label class="f">Titre d'origine (s'il est connu)<input type="text" data-f="o-name" value="${esc(r.originName||"")}" placeholder="Ex : Gratin dauphinois"></label>
+        <label class="f">Pays ou région d'origine (si établi)<input type="text" data-f="o-place" value="${esc(r.originPlace||"")}" placeholder="Ex : Dauphiné, France"></label>
+      </div>
+      <label class="f">Article « Histoire & Origines »<select data-f="o-hist"><option value="">Aucun</option>${opts.map(x=>`<option value="${x.id}"${x.id===r.historyId?" selected":""}>${esc(x.title)}</option>`).join("")}</select></label>
+      <div class="origin-actions">
+        ${r.historyId?"":`<button class="btn small ghost" data-a="o-new">Écrire l'histoire de cette recette</button>`}
+        <button class="btn small" data-a="o-done">Terminé</button>
+      </div></section>`;
+  }
+  if(!name && !place && !a){
+    return `<section class="origin-box empty no-print"><span>Origine et histoire de la recette</span><button class="btn small ghost" data-a="o-edit">Ajouter</button></section>`;
+  }
+  return `<section class="origin-box" aria-label="Origine et histoire">
+    <div class="origin-main">
+      ${name?`<div class="origin-name">${esc(name)}</div>`:""}
+      ${place?`<div class="origin-place"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-6.5-6.2-6.5-11a6.5 6.5 0 0 1 13 0c0 4.8-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></svg>${esc(place)}</div>`:""}
+      ${a?`<button class="origin-link" data-a="h-open" data-id="${a.id}">Découvrir l'histoire de cette recette <span aria-hidden="true">›</span></button>`
+         :`<button class="origin-link muted no-print" data-a="o-new">Écrire l'histoire de cette recette <span aria-hidden="true">›</span></button>`}
+    </div>
+    <button class="btn small ghost no-print" data-a="o-edit">Modifier</button>
+  </section>`;
+}
+function refreshOrigin(){ const r=rec(ui.recipeId), box=$("#originBox"); if(r && box) box.innerHTML = originBoxHTML(r); }
+
+/* --- Rubrique : liste des articles --- */
+function viewHistory(){
+  const U = histUI(), all = [...histList()].sort((a,b)=>a.title.localeCompare(b.title,"fr",{sensitivity:"base"}));
+  app.innerHTML = `
+    <div class="page-head"><h2>Histoire & Origines</h2><button class="btn no-print" data-a="h-new">+ Nouvel article</button></div>
+    <p class="hist-intro">L'origine des recettes de la maison : d'où elles viennent, comment elles ont évolué, ce qu'on en sait vraiment.</p>
+    ${all.length?`<div class="rec-tools no-print" id="histTools"><label class="f">Rechercher un article<input type="search" data-f="h-q" value="${esc(U.q)}" placeholder="Nom, pays, région…"></label></div>`:""}
+    <div id="histList"></div>`;
+  renderHistList();
+}
+function renderHistList(){
+  const box = $("#histList"); if(!box) return;
+  const U = histUI(), q = normName(U.q);
+  const all = [...histList()].sort((a,b)=>a.title.localeCompare(b.title,"fr",{sensitivity:"base"}));
+  if(!all.length){
+    box.innerHTML = `<div class="empty">Aucun article pour l'instant.<br>Ouvrez une recette et touchez « Écrire l'histoire de cette recette », ou créez un article ici.
+      <div style="margin-top:14px"><button class="btn ghost" data-a="h-samples">Ajouter deux articles d'exemple</button></div></div>`;
+    return;
+  }
+  const list = !q ? all : all.filter(a=>[a.title,a.originName,a.place,a.period,a.summary].some(v=>normName(v).includes(q)));
+  const {page, items} = pageSlice("hist", list);
+  box.innerHTML = (list.length ? items.map(a=>{
+      const rs = histRecipes(a.id);
+      return `<button class="hist-card" data-a="h-open" data-id="${a.id}">
+        <span class="hist-t">${esc(a.title)}</span>
+        <span class="hist-m">${[a.place,a.period].filter(Boolean).map(esc).join(" · ")}${a.published===false?` · <b>brouillon</b>`:""}</span>
+        ${a.summary?`<span class="hist-s">${esc(a.summary)}</span>`:""}
+        ${rs.length?`<span class="hist-r">Recettes : ${rs.map(r=>esc(r.name)).join(", ")}</span>`:""}
+      </button>`; }).join("") : `<div class="empty">Aucun article ne correspond.</div>`)
+    + pagerHTML("hist", page, list.length);
+}
+
+/* --- Article --- */
+function viewArticle(){
+  const a = hist(ui.histId); if(!a){ ui.view="history"; return viewHistory(); }
+  const rs = histRecipes(a.id), site = histSiteUrl(a);
+  app.innerHTML = `
+    <div class="page-head no-print"><button class="btn ghost" data-a="h-back">← ${ui.histFrom?"Retour à la recette":"Histoire & Origines"}</button>
+      <span style="flex:1"></span>
+      ${site?`<a class="btn ghost" href="${esc(site)}" target="_blank" rel="noopener">Voir sur le site</a>`:""}
+      <button class="btn ghost" data-a="print">Imprimer</button>
+      <button class="btn" data-a="h-edit" data-id="${a.id}">Modifier</button></div>
+    <article class="hist-article">
+      <p class="hist-kicker">Histoire & Origines</p>
+      <h1>${esc(a.title)}</h1>
+      ${(a.originName||a.place||a.period)?`<dl class="hist-facts">
+        ${a.originName?`<div><dt>Nom d'origine</dt><dd>${esc(a.originName)}</dd></div>`:""}
+        ${a.place?`<div><dt>Origine</dt><dd>${esc(a.place)}</dd></div>`:""}
+        ${a.period?`<div><dt>Époque</dt><dd>${esc(a.period)}</dd></div>`:""}</dl>`:""}
+      ${a.summary?`<p class="hist-lede">${esc(a.summary)}</p>`:""}
+      <div class="hist-body">${histBodyHTML(a.body) || `<p class="hint">Article à rédiger : touchez « Modifier ».</p>`}</div>
+      ${(a.sources||"").trim()?`<section class="hist-sources"><h3>Sources</h3>${histBodyHTML(a.sources)}</section>`:""}
+      ${rs.length?`<section class="hist-sources no-print"><h3>Recettes de la maison</h3><p>${rs.map(r=>`<button class="linkbtn" data-a="open-recipe" data-id="${r.id}">${esc(r.name)}</button>`).join(", ")}</p></section>`:""}
+    </article>`;
+}
+function openArticleEditor(id){
+  const a = id ? hist(id) : {id:null,title:"",originName:"",place:"",period:"",summary:"",body:"",sources:"",published:true};
+  const d = $("#histDlg");
+  d.innerHTML = `<form class="dlg dlg-wide" method="dialog" id="histForm" data-id="${a.id||""}">
+    <h3>${id?"Modifier l'article":"Nouvel article"}</h3>
+    <label class="f">Titre de l'article<input type="text" name="title" value="${esc(a.title)}" required placeholder="Ex : Le gratin dauphinois"></label>
+    <div class="two">
+      <label class="f">Nom d'origine<input type="text" name="originName" value="${esc(a.originName||"")}"></label>
+      <label class="f">Pays ou région<input type="text" name="place" value="${esc(a.place||"")}"></label>
+    </div>
+    <label class="f">Époque (si connue)<input type="text" name="period" value="${esc(a.period||"")}" placeholder="Ex : fin du XVIIIᵉ siècle"></label>
+    <label class="f">Résumé (deux lignes)<textarea name="summary" rows="2">${esc(a.summary||"")}</textarea></label>
+    <label class="f">Texte<textarea name="body" rows="12" placeholder="Une ligne vide entre deux paragraphes. « ## » en début de ligne pour un intertitre.">${esc(a.body||"")}</textarea></label>
+    <label class="f">Sources<textarea name="sources" rows="3" placeholder="Livres, archives, sites consultés…">${esc(a.sources||"")}</textarea></label>
+    <label class="checkline"><input type="checkbox" name="published" ${a.published!==false?"checked":""}> Article publié (sinon : brouillon)</label>
+    <p class="hint" style="margin:-4px 0 0">Distinguez ce qui est établi (documents, dates) de ce qui relève de la légende : c'est ce qui fait la valeur d'un article d'histoire.</p>
+    <div class="dlg-actions">
+      ${id?`<button type="button" class="btn danger" data-a="h-del" data-id="${id}" style="margin-right:auto">Supprimer</button>`:""}
+      <button type="button" class="btn ghost" data-a="h-close">Annuler</button>
+      <button type="submit" class="btn">Enregistrer</button>
+    </div></form>`;
+  d.showModal();
+}
+const HIST_SAMPLES = [
+  {title:"Le gratin dauphinois", originName:"Gratin dauphinois", place:"Dauphiné, France", period:"XVIIIᵉ siècle",
+   summary:"Des pommes de terre, du lait ou de la crème, et surtout pas de fromage : un plat du Dauphiné devenu classique de la cuisine française.",
+   body:"## Une première mention en 1788\n\nLa mention la plus souvent citée remonte au 12 juillet 1788 : un « gratin de pommes de terre aux laitages » est servi lors d'un repas offert à Gap par le duc de Clermont-Tonnerre, lieutenant général du Dauphiné, aux officiers de la ville.\n\n## Un plat de pommes de terre\n\nLa pomme de terre ne s'impose dans l'alimentation française qu'à la fin du XVIIIᵉ siècle. Le gratin du Dauphiné appartient à cette époque : un plat simple, cuit lentement au four dans le lait ou la crème.\n\n## Avec ou sans fromage ?\n\nDans la tradition dauphinoise, le gratin ne contient ni fromage ni œuf. La version au fromage est plus proche du gratin savoyard. Le débat reste vif, et chaque maison a sa recette.",
+   sources:"À compléter : menu du 12 juillet 1788 (archives citées par les ouvrages sur la cuisine dauphinoise).\nVérifiez les références avant publication."},
+  {title:"Le sablé", originName:"Sablé", place:"Sablé-sur-Sarthe (Sarthe), France", period:"XVIIᵉ – XIXᵉ siècle",
+   summary:"Un biscuit à la texture friable, « sablée », dont le nom renverrait selon les récits à une ville de la Sarthe ou simplement à sa texture.",
+   body:"## Deux explications du nom\n\nLe mot « sablé » décrit d'abord une technique : sabler le beurre avec la farine donne une pâte qui s'effrite comme du sable.\n\nUne autre explication, souvent racontée, rattache le biscuit à la ville de Sablé-sur-Sarthe et à la marquise de Sablé, au XVIIᵉ siècle. Ce récit n'est pas établi par des documents de l'époque : il faut le présenter comme une tradition.\n\n## Une spécialité locale\n\nLa ville de Sablé-sur-Sarthe produit des sablés depuis le XIXᵉ siècle et en a fait une spécialité reconnue.",
+   sources:"À compléter.\nPrésentez la légende de la marquise comme une tradition, non comme un fait établi."}
+];
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a^='h-'],[data-a^='o-']"); if(!el) return;
+  const a = el.dataset.a, r = rec(ui.recipeId);
+  if(a==="o-edit"){ ui.originEdit = r && r.id; refreshOrigin(); }
+  else if(a==="o-done"){ ui.originEdit = null; refreshOrigin(); }
+  else if(a==="o-new" && r){
+    const art = {id:uid(), title:(r.originName||r.name||"Nouvel article").trim(), originName:(r.originName||"").trim(), place:(r.originPlace||"").trim(), period:"", summary:"", body:"", sources:"", published:true, updatedAt:Date.now()};
+    art.slug = histSlug(art.title); histList().push(art); r.historyId = art.id; ui.originEdit = null; save();
+    ui.histFrom = r.id; ui.histId = art.id; ui.view = "article"; render(); window.scrollTo(0,0); openArticleEditor(art.id);
+  }
+  else if(a==="h-open"){ ui.histFrom = ui.view==="recipe" ? ui.recipeId : null; ui.histId = el.dataset.id; ui.view = "article"; render(); window.scrollTo(0,0); }
+  else if(a==="h-back"){ if(ui.histFrom && rec(ui.histFrom)){ ui.recipeId = ui.histFrom; ui.view = "recipe"; } else ui.view = "history"; ui.histFrom = null; render(); window.scrollTo(0,0); }
+  else if(a==="h-new"){ openArticleEditor(null); }
+  else if(a==="h-edit"){ openArticleEditor(el.dataset.id); }
+  else if(a==="h-close"){ $("#histDlg").close(); }
+  else if(a==="h-del"){
+    const art = hist(el.dataset.id); if(!art) return;
+    const rs = histRecipes(art.id);
+    if(confirm(`Supprimer l'article « ${art.title} » ?`+(rs.length?`\n\nIl est lié à : ${rs.map(x=>x.name).join(", ")}. Le lien sera retiré de ces recettes.`:""))){
+      rs.forEach(x=>x.historyId=null); state.history = histList().filter(x=>x.id!==art.id); save();
+      $("#histDlg").close(); ui.view = "history"; render(); toast("Article supprimé");
+    }
+  }
+  else if(a==="h-samples"){
+    HIST_SAMPLES.forEach(s=>{ const art={id:uid(),...s,published:true,updatedAt:Date.now()}; art.slug=histSlug(art.title); histList().push(art);
+      const target = state.recipes.find(x=>normName(x.name).startsWith(normName(s.originName)) && !x.historyId);
+      if(target){ target.historyId = art.id; if(!target.originName) target.originName = s.originName; if(!target.originPlace) target.originPlace = s.place; } });
+    save(); renderHistList(); toast("Deux articles d'exemple ajoutés : vérifiez et complétez les sources");
+  }
+});
+document.addEventListener("input", e=>{
+  const f = e.target.dataset && e.target.dataset.f; if(!f) return;
+  if(f==="h-q"){ histUI().q = e.target.value; pgUI().hist = 0; renderHistList(); return; }
+  const r = rec(ui.recipeId); if(!r) return;
+  if(f==="o-name"){ r.originName = e.target.value; save(); }
+  if(f==="o-place"){ r.originPlace = e.target.value; save(); }
+});
+document.addEventListener("change", e=>{
+  if(e.target.dataset && e.target.dataset.f==="o-hist"){ const r=rec(ui.recipeId); if(r){ r.historyId = e.target.value || null; save(); } }
+});
+document.addEventListener("submit", e=>{
+  if(e.target.id!=="histForm") return;
+  e.preventDefault();
+  const fd = new FormData(e.target), id = e.target.dataset.id;
+  const x = { title:String(fd.get("title")).trim(), originName:String(fd.get("originName")).trim(), place:String(fd.get("place")).trim(),
+    period:String(fd.get("period")).trim(), summary:String(fd.get("summary")).trim(), body:String(fd.get("body")), sources:String(fd.get("sources")),
+    published: !!fd.get("published"), updatedAt: Date.now() };
+  if(!x.title) return;
+  x.slug = histSlug(x.title);
+  if(histList().some(a=>a.id!==id && a.slug===x.slug)) x.slug += "-" + (id||uid()).slice(0,4);
+  let art;
+  if(id){ art = hist(id); Object.assign(art, x); } else { art = {id:uid(), ...x}; histList().push(art); }
+  save(); $("#histDlg").close(); ui.histId = art.id; ui.view = "article"; render(); toast("Article enregistré");
+});
+
+/* Le logo ramène à la page d'accueil (liste des recettes) */
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a='home']"); if(!el) return;
+  e.preventDefault();
+  document.querySelectorAll("dialog[open]").forEach(d=>d.close());
+  ui.view = "recipes"; ui.recipeId = null; ui.from = null; ui.recStack = []; ui.histFrom = null;
+  if(ui.rv) ui.rv.q = ""; if(ui.pg) ui.pg.rec = 0;
+  render(); window.scrollTo({top:0, behavior:"smooth"});
+});
+/* ========= Calcul au litre ou au kilo (recettes de base) =========
+   r.scaleMode = "yield" : on règle la quantité à produire (1 L, 2 L…) au lieu
+   du nombre de portions. Toutes les quantités se recalculent, et le ticket donne
+   le coût au litre (ou au kilo). */
+const YMODE_UNITS = ["L","cl","ml","kg","g"];
+const isMassU = u => u==="g" || u==="kg";
+function yUnitLabel(u){ return isMassU(u) ? "kg" : "litre"; }
+function yInBig(r){ /* quantité produite en litres ou en kilos */
+  return r.yieldQty>0 && r.yieldUnit ? yieldBase(r.yieldQty, r.yieldUnit)/1000 : 0;
+}
+function recAmount(r){
+  return r.scaleMode==="yield" && r.yieldQty>0 ? qtyFmt(r.yieldQty, r.yieldUnit) : `${nf(r.portions, r.portions%1?1:0)} portions`;
+}
+function yieldStats(r, c){
+  const big = yInBig(r); if(!(big>0)) return null;
+  const cpu = c.total / big, tf = state.settings.targetFC;
+  const p = r.priceYield>0 ? r.priceYield : 0;
+  return { big, unit:yUnitLabel(r.yieldUnit), cpu,
+           fc: p ? cpu/p*100 : null, margin: p ? p-cpu : null, coef: p && cpu>0 ? p/cpu : null,
+           advised: tf>0 ? cpu/(tf/100) : null };
+}
+function rescaleYield(r, q){
+  if(!(q>0) || !r.yieldUnit) return;
+  if(!(r.yieldQty>0)){ r.yieldQty = q; save(); viewRecipe(); toast("Quantité de base enregistrée : changez-la pour recalculer"); return; }
+  if(q===r.yieldQty) return;
+  const k = q / r.yieldQty;
+  r.lines.forEach(l=>{ l.qty = Math.round(l.qty*k*10000)/10000;
+    const inp = document.querySelector(`[data-f="l-qty"][data-l="${l.id}"]`); if(inp) inp.value = inputNum(l.qty); });
+  r.portions = Math.round(r.portions*k*100)/100 || r.portions;
+  r.yieldQty = q; save(); refreshCalc();
+  toast("Quantités recalculées pour " + qtyFmt(q, r.yieldUnit));
+}
+function scaleFieldsHTML(r){
+  const mode = r.scaleMode==="yield" ? "yield" : "portions";
+  const tabs = `<div class="scale-tabs no-print" role="tablist" aria-label="Calculer la recette par">
+    <button type="button" role="tab" data-a="r-mode" data-m="portions" aria-selected="${mode==="portions"}">Par portions</button>
+    <button type="button" role="tab" data-a="r-mode" data-m="yield" aria-selected="${mode==="yield"}">En litres / kilos</button></div>`;
+  if(mode==="portions") return {tabs,
+    qty:`<label class="f">Nombre de portions (les quantités se recalculent)
+        <input type="text" inputmode="decimal" class="num" data-f="r-portions" value="${inputNum(r.portions)}"></label>`,
+    price:`<label class="f">Prix de vente par portion (HT)
+        <input type="text" inputmode="decimal" class="num" data-f="r-price" value="${inputNum(r.price)}" placeholder="0"></label>`};
+  const declared = r.yieldQty>0;
+  return {tabs,
+    qty:`<div class="f yq-field"><span class="f-l">${declared?"Quantité à produire (les quantités se recalculent)":"Quantité produite avec les quantités actuelles"}</span>
+        <div class="yq-row"><input type="text" inputmode="decimal" class="num" data-f="r-yscale" value="${inputNum(r.yieldQty)}" placeholder="Ex : 1" aria-label="Quantité">
+        <select data-f="r-yunit" aria-label="Unité">${YMODE_UNITS.map(u=>`<option${u===(r.yieldUnit||"L")?" selected":""}>${u}</option>`).join("")}</select></div>
+        ${declared?"":`<span class="yq-hint">Indiquez d'abord ce que la recette produit telle qu'elle est écrite (ex. 1 L de fumet). Ensuite, changez ce nombre pour recalculer.</span>`}</div>`,
+    price:`<label class="f">Prix de vente par ${yUnitLabel(r.yieldUnit||"L")} (HT, facultatif)
+        <input type="text" inputmode="decimal" class="num" data-f="r-priceY" value="${inputNum(r.priceYield)}" placeholder="0"></label>`};
+}
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a='r-mode']"); if(!el) return;
+  const r = rec(ui.recipeId); if(!r) return;
+  r.scaleMode = el.dataset.m;
+  if(r.scaleMode==="yield" && !r.yieldUnit) r.yieldUnit = "L";
+  save(); viewRecipe();
+});
+document.addEventListener("input", e=>{
+  const f = e.target.dataset && e.target.dataset.f; if(!f) return;
+  const r = rec(ui.recipeId); if(!r) return;
+  if(f==="r-yscale"){ clearTimeout(rescaleYield.h); const v=num(e.target.value); rescaleYield.h=setTimeout(()=>rescaleYield(r,v),700); }
+  if(f==="r-priceY"){ r.priceYield = Math.max(0,num(e.target.value)); save(); refreshCalc(); }
+});
+document.addEventListener("change", e=>{
+  if(!(e.target.dataset && e.target.dataset.f==="r-yunit")) return;
+  const r = rec(ui.recipeId); if(!r) return;
+  const nu = e.target.value, ou = r.yieldUnit || nu;
+  if(r.yieldQty>0 && isMassU(nu)===isMassU(ou)) r.yieldQty = Math.round(yieldBase(r.yieldQty,ou)/yieldBase(1,nu)*10000)/10000;
+  else if(isMassU(nu)!==isMassU(ou)) r.yieldQty = r.yieldQty || 0;
+  r.yieldUnit = nu; save(); viewRecipe();
+});
+
 /* ========= Interface ========= */
 let ui = {view:"recipes", recipeId:null, target:{}, q:""};
 const $ = s => document.querySelector(s);
@@ -1467,17 +1843,18 @@ function toast(msg){
 }
 
 const ICONS={
-  recipes:'<path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6z"/><path d="M6 3v18M10 8h5M10 12h5"/>',
-  plan:'<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/>',
-  ingredients:'<path d="M4 9h16l-1.6 9.2a2 2 0 0 1-2 1.8H7.6a2 2 0 0 1-2-1.8z"/><path d="M8.5 9l3-5M15.5 9l-3-5"/>',
-  allergens:'<path d="M12 3.5 21 19H3z"/><path d="M12 10v4.2M12 17h.01"/>',
-  notebook:'<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/>',
-  lexicon:'<path d="M5 4.5h9.5a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h9.5M9 8.5h5"/>',
-  settings:'<path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/>'
+  recipes:'<path class="g" d="M5 4.6A2.6 2.6 0 0 1 7.6 2H19v16.5H7.6A2.6 2.6 0 0 0 5 21z"/><path class="a" d="M7.6 18.5H19V22H7.6a1.75 1.75 0 0 1 0-3.5z"/><path class="c" d="M9.5 7h6M9.5 10.5h4"/>',
+  notebook:'<path class="g" d="M12 2a7 7 0 0 0-4.1 12.7c.6.4.9 1 .9 1.7V17h6.4v-.6c0-.7.3-1.3.9-1.7A7 7 0 0 0 12 2z"/><path class="a" d="M8.8 18.3h6.4v1.2a2.5 2.5 0 0 1-2.5 2.5h-1.4a2.5 2.5 0 0 1-2.5-2.5z"/><path class="c" d="M12 6.5v4.5M10 9h4"/>',
+  plan:'<rect class="g" x="3" y="4.5" width="18" height="17" rx="3.2"/><path class="a" d="M3 7.7a3.2 3.2 0 0 1 3.2-3.2h11.6A3.2 3.2 0 0 1 21 7.7V10H3z"/><rect class="g" x="7" y="2" width="2.4" height="5" rx="1.2"/><rect class="g" x="14.6" y="2" width="2.4" height="5" rx="1.2"/><path class="c" d="M7.5 14h.01M12 14h.01M16.5 14h.01M7.5 17.5h.01M12 17.5h.01"/>',
+  ingredients:'<path class="a" d="M12 1.8c1.9 1.4 2.6 3.6 2 6.2h-4c-.6-2.6.1-4.8 2-6.2z"/><path class="g" d="M2.8 9h18.4l-1.9 10a2.8 2.8 0 0 1-2.8 2.3H7.5a2.8 2.8 0 0 1-2.8-2.3z"/><path class="c" d="M8.5 12.5v5.5M12 12.5v5.5M15.5 12.5v5.5"/>',
+  allergens:'<path class="g" d="M12 2.6c.8 0 1.5.4 1.9 1.1l8.1 14.1a2.2 2.2 0 0 1-1.9 3.3H3.9A2.2 2.2 0 0 1 2 17.8L10.1 3.7c.4-.7 1.1-1.1 1.9-1.1z"/><rect class="a" x="10.8" y="8.2" width="2.4" height="6.6" rx="1.2"/><circle class="a" cx="12" cy="17.3" r="1.4"/>',
+  lexicon:'<path class="g" d="M2.3 5.2c3.2-1.5 6.4-1.3 9.2.5V21c-2.8-1.7-6-1.9-9.2-.5z"/><path class="g" d="M21.7 5.2c-3.2-1.5-6.4-1.3-9.2.5V21c2.8-1.7 6-1.9 9.2-.5z"/><path class="a" d="M11.2 5.4h1.6V21h-1.6z"/><path class="c" d="M5 9.5c1.6-.5 2.9-.4 4.2.2M15 9.7c1.3-.6 2.6-.7 4.2-.2"/>',
+  history:'<path class="g" d="M6.8 2.5h11A2.7 2.7 0 0 1 20.5 5.2v11.3H9.3v3a2.3 2.3 0 1 1-4.6 0V4.6a2.1 2.1 0 0 1 2.1-2.1z"/><path class="a" d="M9.3 16.5h12.2v1.8a3.2 3.2 0 0 1-3.2 3.2H7a2.3 2.3 0 0 0 2.3-2.3z"/><path class="c" d="M9.3 7h7.5M9.3 10.5h5.5"/>',
+  settings:'<rect class="g" x="2.5" y="5.8" width="19" height="2.8" rx="1.4"/><rect class="g" x="2.5" y="15.4" width="19" height="2.8" rx="1.4"/><circle class="a" cx="15.5" cy="7.2" r="3.2"/><circle class="a" cx="8.5" cy="16.8" r="3.2"/>'
 };
 function renderNav(){
-  const tabs=[["recipes","Recettes"],["notebook","Carnet"],["plan","Semaine"],["ingredients","Ingrédients"],["allergens","Allergènes"],["lexicon","Lexique"],["settings","Réglages"]];
-  const on = ui.view==="recipe" ? (ui.from==="plan" ? "plan" : ui.from==="idea" ? "notebook" : "recipes") : ui.view==="idea" ? "notebook" : ui.view==="conv" ? "ingredients" : ui.view;
+  const tabs=[["recipes","Recettes"],["notebook","Carnet"],["plan","Semaine"],["ingredients","Ingrédients"],["allergens","Allergènes"],["lexicon","Lexique"],["history","Histoire"],["settings","Réglages"]];
+  const on = ui.view==="recipe" ? (ui.from==="plan" ? "plan" : ui.from==="idea" ? "notebook" : "recipes") : ui.view==="idea" ? "notebook" : ui.view==="conv" ? "ingredients" : ui.view==="article" ? "history" : ui.view;
   $("#nav").innerHTML = tabs.map(([k,l])=>
     `<button class="tab" data-a="nav" data-v="${k}"${on===k?' aria-current="page"':""}><span class="tw"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></span><span>${l}</span></button>`
   ).join("");
@@ -1496,6 +1873,8 @@ function render(){
   else if(ui.view==="allergens") viewAllergens();
   else if(ui.view==="conv") viewConversions();
   else if(ui.view==="lexicon") viewLexicon();
+  else if(ui.view==="history") viewHistory();
+  else if(ui.view==="article") viewArticle();
   else viewSettings();
   window.scrollTo(0,0);
 }
@@ -1546,22 +1925,22 @@ function viewRecipe(){
       <button class="btn ghost" data-a="dup-recipe">Dupliquer</button>
       <button class="btn danger" data-a="del-recipe">Supprimer</button>
     </div>
+    ${(()=>{ const sf=scaleFieldsHTML(r); return `${sf.tabs}
     <div class="grid-params">
       <label class="f">Nom de la recette
         <input type="text" class="title-in" data-f="r-name" value="${esc(r.name)}" placeholder="Ex : Velouté de potimarron"></label>
-      <label class="f">Nombre de portions (les quantités se recalculent)
-        <input type="text" inputmode="decimal" class="num" data-f="r-portions" value="${inputNum(r.portions)}"></label>
-      <label class="f">Prix de vente par portion (HT)
-        <input type="text" inputmode="decimal" class="num" data-f="r-price" value="${inputNum(r.price)}" placeholder="0"></label>
-    </div>
+      ${sf.qty}
+      ${sf.price}
+    </div>`; })()}
     <div class="rec-catrow"><label class="f">Catégorie (pour ranger la recette)
       <input type="text" data-f="r-cat" list="recCatList" value="${esc(r.category||"")}" placeholder="Entrée, plat, dessert…"></label>
       <datalist id="recCatList">${recCategories().map(c=>`<option value="${esc(c)}">`).join("")}</datalist>
-      <fieldset class="dur yieldset"><legend>Quantité produite (pour l'utiliser dans d'autres recettes)</legend>
+      ${r.scaleMode==="yield"?"":`<fieldset class="dur yieldset"><legend>Quantité produite (pour l'utiliser dans d'autres recettes)</legend>
         <label><input type="text" inputmode="decimal" class="num" data-f="r-yq" value="${inputNum(r.yieldQty)}" placeholder="1" aria-label="Quantité produite"></label>
         <select data-f="r-yu" aria-label="Unité de la quantité produite"><option value="">—</option>${YIELD_UNITS.map(u=>`<option${u===r.yieldUnit?" selected":""}>${u}</option>`).join("")}</select>
-      </fieldset></div>
+      </fieldset>`}</div>
     ${(()=>{ const us=usedIn(r.id); return us.length?`<p class="used-in">Utilisée dans : ${us.map(x=>`<button type="button" class="linkbtn" data-a="open-sub" data-id="${x.id}">${esc(x.name)}</button>`).join(", ")}</p>`:""; })()}
+    <div id="originBox">${originBoxHTML(r)}</div>
 
     <div class="layout">
       <div style="display:grid;gap:16px">
@@ -1634,7 +2013,22 @@ function refreshCalc(){
   const nopr=r.lines.filter(l=>{ const i=ing(l.ingId); return i&&!i.from&&!(i.price>0); }).length;
   const noconv=r.lines.filter(l=>!lineCostInfo(l).ok).length;
   const row=(k,v)=>`<div class="kv"><span>${k}</span><i></i><b>${v}</b></div>`;
-  if(t) t.innerHTML = `
+  const ys = r.scaleMode==="yield" ? yieldStats(r,c) : null;
+  if(t && r.scaleMode==="yield"){
+    const ycls = fcClass(ys ? ys.fc : null), yg = ys&&ys.fc!==null ? Math.min(ys.fc,MAXG)/MAXG*100 : 0;
+    t.innerHTML = `
+    <div class="t-title">Coût de revient</div>
+    ${ys ? `<div class="big ${ycls}">${money(ys.cpu)}</div><div class="cap">par ${ys.unit}${ys.fc!==null?` · food cost ${nf(ys.fc,1)} %`:""}</div>
+      ${ys.fc!==null?`<div class="gauge" role="img" aria-label="Food cost comparé à l'objectif"><span class="fill ${ycls}" style="width:${yg.toFixed(1)}%"></span><span class="mark" style="left:${gm.toFixed(1)}%"></span></div>`:""}
+      ${row(`Coût par ${ys.unit}`,money(ys.cpu))}
+      ${row(`Coût total (${esc(qtyFmt(r.yieldQty,r.yieldUnit))})`,money(c.total))}
+      ${r.priceYield>0?row(`Prix de vente par ${ys.unit}`,money(r.priceYield))+row(`Marge par ${ys.unit}`,money(ys.margin))+row("Coefficient","× "+nf(ys.coef,2)):""}
+      ${row(`Prix conseillé par ${ys.unit}`,ys.advised===null?"–":money(ys.advised))}`
+      : `<div class="big none">–</div><p class="warnline">Indiquez la quantité produite (ex. 1 L) pour obtenir le coût au ${yUnitLabel(r.yieldUnit||"L")}.</p>`}
+    ${nopr?`<p class="warnline">${nopr} ingrédient${nopr>1?"s":""} sans prix : le coût est incomplet.</p>`:""}
+    ${noconv?`<p class="warnline">${noconv} ligne${noconv>1?"s":""} sans conversion possible : le coût est incomplet.</p>`:""}
+    <p class="hint">Le coût tient compte du rendement de chaque ingrédient. Changez la quantité à produire (1 L, 2 L…) : toutes les quantités suivent.</p>`;
+  } else if(t) t.innerHTML = `
     <div class="t-title">Coût de revient</div>
     <div class="big ${cls}">${c.fc===null?"–":nf(c.fc,1)+"<small>%</small>"}</div>
     <div class="cap">de food cost · objectif ${tf} %</div>
@@ -2224,8 +2618,10 @@ function pdfRecipePages(pdf,r){
   pg.rect(M,y-4,R-M,10,[241,244,244]);
   y+=20;
   const kv=(k,v,o={})=>{ pg.text(M+8,y,k,10.5,{color:GRAY}); pg.text(R-8,y,v,o.big?13:10.5,{bold:true,align:"right",color:o.color}); y+=o.big?22:19; };
-  kv("Coût par portion",money(c.perPortion));
-  kv(`Coût total (${nf(c.n,c.n%1?1:0)} portions)`,money(c.total));
+  const ysP = r.scaleMode==="yield" ? yieldStats(r,c) : null;
+  if(ysP){ kv(`Coût par ${ysP.unit}`,money(ysP.cpu),{big:true}); kv(`Coût total (${qtyFmt(r.yieldQty,r.yieldUnit)})`,money(c.total)); }
+  else { kv("Coût par portion",money(c.perPortion));
+  kv(`Coût total (${nf(c.n,c.n%1?1:0)} portions)`,money(c.total)); }
   kv("Prix de vente",r.price>0?money(r.price):"–");
   kv("Food cost",c.fc===null?"–":nf(c.fc,1)+" %",{big:true,color:fcCol});
   kv("Marge par portion",c.margin===null?"–":money(c.margin));
