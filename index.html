@@ -278,7 +278,7 @@ dialog[open]{animation:pop .2s ease-out}
   .topbar{position:fixed;top:auto;bottom:0;left:0;right:0;border-bottom:0;border-top:1px solid var(--line);padding:0 0 env(safe-area-inset-bottom,0px)}
   .topbar-in{padding:6px 8px 4px;gap:0}
   .brand{display:none}
-  #nav{width:100%;display:grid;grid-template-columns:repeat(8,1fr);gap:1px}
+  #nav{width:100%;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:1px}
   .tab{flex-direction:column;gap:3px;padding:5px 0 4px;min-height:58px;font-size:.7rem;justify-content:center;border-radius:var(--r-md);min-width:0}
   .tab:hover{background:none}
   .tw{width:min(56px,100%);height:30px;border-radius:99px;transition:background .15s}
@@ -573,19 +573,20 @@ body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
 .card{border-radius:20px}
 .page-head h2{font-size:clamp(1.7rem,3vw,2.3rem);letter-spacing:-.02em}
 main{position:relative}
-@media (min-width:901px) and (max-width:1340px){ .tab{padding:0 6px;gap:7px;font-size:.86rem} .tw{width:32px;height:32px;border-radius:10px} .ti{width:21px;height:21px} }
-@media (min-width:901px) and (max-width:1160px){ .tab .tw{display:inline-grid} .tab{flex-direction:column;gap:4px;min-height:62px;font-size:.74rem} .brand span{display:none} }
+@media (min-width:901px) and (max-width:1640px){ .tab{padding:0 6px;gap:7px;font-size:.86rem} .tw{width:32px;height:32px;border-radius:10px} .ti{width:21px;height:21px} }
+@media (min-width:901px) and (max-width:1440px){ .tab .tw{display:inline-grid} .tab{flex-direction:column;gap:4px;min-height:62px;font-size:.74rem} .brand span{display:none} }
 @media (max-width:900px){
   .topbar{box-shadow:0 -6px 24px rgba(10,63,75,.10)}
   .topbar-in{padding:8px 6px 6px}
-  #nav{display:grid;grid-template-columns:repeat(8,1fr);gap:0}
+  #nav{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:0}
   .tab{flex-direction:column;gap:4px;min-height:60px;padding:4px 0;font-size:.66rem;border-radius:14px;box-shadow:none!important;background:none!important;color:var(--muted)}
   .tab[aria-current="page"]{color:var(--brand)}
   .tw{width:34px;height:34px;border-radius:10px}
   .tab[aria-current="page"] .tw{background:#F2A100;transform:translateY(-2px)}
   .ti{width:22px;height:22px}
 }
-@media (max-width:420px){ .tab{font-size:.56rem;letter-spacing:-.03em} .tw{width:31px;height:31px;border-radius:9px} .ti{width:20px;height:20px} }
+@media (max-width:420px){ .tab{font-size:.52rem;letter-spacing:-.035em} .tw{width:29px;height:29px;border-radius:9px} .ti{width:19px;height:19px} }
+@media (max-width:900px){ .tab span:last-child{max-width:100%;overflow:hidden;text-overflow:clip;white-space:nowrap} }
 @media print{ body::before{display:none} }
 .brand{text-decoration:none;color:inherit;border-radius:16px;padding:4px 8px 4px 4px;transition:background .15s}
 .brand:hover{background:var(--surface-2)}
@@ -598,6 +599,53 @@ main{position:relative}
 .f-l{font-size:.8rem;font-weight:700;color:var(--muted)}
 .yq-row{display:grid;grid-template-columns:1fr 92px;gap:8px}
 .yq-hint{font-size:.8rem;color:var(--warn,#8a5a00);font-weight:600;line-height:1.35}
+.pr-intro,.pr-sec{margin-bottom:16px;scroll-margin-top:90px}
+@media (max-width:900px){ .pr-intro,.pr-sec{scroll-margin-top:12px} }
+.pr-goal{font-size:1.08rem;line-height:1.55;background:var(--brand-soft);border-radius:14px;padding:14px 16px;margin-top:0}
+.pr-intro h3{font:800 1.2rem var(--display);margin:22px 0 10px}
+.pr-sum{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.pr-sum-i{display:grid;grid-template-columns:34px 1fr;grid-template-rows:auto 1fr;align-content:start;align-items:start;column-gap:10px;row-gap:2px;text-align:left;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--surface);cursor:pointer;font:inherit;color:inherit}
+.pr-sum-i:hover{border-color:var(--brand);background:var(--surface-2)}
+.pr-sum-i .pr-n{grid-row:1/3}
+.pr-sum-i b{font-size:.98rem}
+.pr-sum-i span:last-child{font-size:.84rem;color:var(--muted);line-height:1.35}
+.pr-n{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:9px;background:var(--brand);color:#fff;font:800 .9rem var(--font);flex:none}
+.pr-toc{list-style:none;padding:0;margin:0;columns:2 300px;column-gap:20px}
+.pr-toc li{break-inside:avoid}
+.pr-toc button{display:flex;align-items:center;gap:10px;width:100%;min-height:42px;border:0;background:none;padding:4px 6px;border-radius:10px;cursor:pointer;font:650 1rem var(--font);color:var(--brand);text-align:left}
+.pr-toc button:hover{background:var(--brand-soft)}
+.pr-toc button span{display:inline-grid;place-items:center;min-width:26px;height:26px;border-radius:8px;background:var(--brand-soft);font-size:.82rem}
+.pr-h{display:flex;align-items:center;gap:12px;font:800 1.3rem var(--display);margin:0 0 12px}
+.pr-body{max-width:78ch;line-height:1.6}
+.pr-body h4{font:750 1.05rem var(--display);margin:18px 0 6px;color:var(--brand)}
+.pr-body ul{margin:6px 0 10px;padding-left:20px}
+.pr-body li{margin:3px 0}
+.pr-def{background:var(--surface-2);border-left:4px solid var(--brand);border-radius:0 12px 12px 0;padding:10px 14px}
+.pr-ex{background:rgba(242,161,0,.10);border-radius:12px;padding:10px 14px}
+.pr-key{border:1.5px dashed var(--brand);border-radius:12px;padding:10px 14px}
+.pr-warn{background:var(--warn-soft);color:#6B4500;border-radius:12px;padding:10px 14px}
+.pr-flow{list-style:none;counter-reset:f;padding:0;display:flex;flex-wrap:wrap;gap:6px}
+.pr-flow li{counter-increment:f;background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:6px 12px;font-weight:600;margin:0}
+.pr-flow li::before{content:counter(f) " ";color:var(--brand);font-weight:800}
+.pr-t{width:100%;border-collapse:collapse;margin:6px 0 10px}
+.pr-t th{text-align:left;font-size:.82rem;color:var(--muted);padding:8px 10px;border-bottom:2px solid var(--line)}
+.pr-t td{padding:8px 10px;border-bottom:1px solid var(--line)}
+.pr-t td:last-child{font-weight:650}
+.pr-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px;margin:8px 0}
+.pr-box{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--surface-2)}
+.pr-box p{margin:6px 0 0}
+.pr-chips{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0!important}
+.pr-chips li{background:var(--bad-soft,#fde8e5);color:var(--bad);border-radius:99px;padding:4px 12px;font-weight:650;font-size:.9rem;margin:0}
+.pr-label{max-width:360px;border:2px solid var(--ink);border-radius:10px;padding:12px 14px;background:#fff;color:#111;font-family:ui-monospace,Menlo,Consolas,monospace;margin:8px 0}
+.pr-label-h{font-weight:800;letter-spacing:.04em;border-bottom:1.5px dashed #111;padding-bottom:6px;margin-bottom:6px}
+.pr-label dl{margin:0}.pr-label dl div{display:flex;justify-content:space-between;gap:10px;padding:2px 0;font-size:.86rem}
+.pr-label dt{font-weight:600}.pr-label dd{margin:0;text-align:right}
+.pr-back{margin:14px 0 0}
+.pr-flash{animation:prflash 1.2s ease}
+@keyframes prflash{0%{box-shadow:0 0 0 4px #F2A100}100%{box-shadow:0 1px 2px rgba(10,63,75,.05),0 8px 24px rgba(10,63,75,.06)}}
+@media print{ .pr-sec{break-inside:auto} .pr-sum-i{break-inside:avoid} }
+.tls{display:none}
+@media (max-width:420px){ .tab .tl{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)} .tab .tls{display:block} }
 </style>
 </head>
 <body>
@@ -1832,6 +1880,180 @@ document.addEventListener("change", e=>{
   r.yieldUnit = nu; save(); viewRecipe();
 });
 
+/* ========= Principes de la cuisine professionnelle =========
+   Contenu fixe (cours) : résumé et sommaire cliquables en tête,
+   puis une section par principe. */
+const PRINC_SECTIONS = [
+["marche","Marche en avant",`
+<p class="pr-def"><b>Définition :</b> principe d'organisation qui consiste à faire progresser les denrées alimentaires des zones les plus contaminantes vers les zones les plus propres, sans retour en arrière susceptible de provoquer une contamination.</p>
+<p>Son objectif est d'éviter les contaminations croisées entre les aliments crus, les aliments cuits, le matériel sale et les produits prêts à être consommés. Il existe deux formes de marche en avant.</p>
+<h4>A. La marche en avant dans l'espace</h4>
+<p>Les différentes étapes de préparation sont réalisées dans des zones distinctes :</p>
+<ol class="pr-flow"><li>Réception des marchandises</li><li>Stockage</li><li>Préparation des produits crus</li><li>Cuisson</li><li>Préparation des produits cuits</li><li>Dressage et envoi</li></ol>
+<h4>B. La marche en avant dans le temps</h4>
+<p>Lorsque les locaux ne permettent pas de séparer les activités, plusieurs opérations peuvent être réalisées successivement dans une même zone. Il faut alors organiser les opérations pour éviter les contaminations, notamment en nettoyant et en désinfectant les surfaces et le matériel entre les activités.</p>
+<p class="pr-ex"><b>Exemple :</b> préparer les légumes, nettoyer et désinfecter le plan de travail, puis réaliser une préparation nécessitant une zone propre.</p>
+<p class="pr-key"><b>À retenir :</b> la marche en avant concerne aussi bien la circulation des aliments que celle du personnel, du matériel et des déchets. La réglementation impose que l'agencement des locaux permette de prévenir les contaminations entre les opérations (Eur-Lex).</p>`],
+["poste","Installation du poste de travail",`
+<p class="pr-def"><b>Définition :</b> l'installation du poste de travail, également appelée mise en place, consiste à préparer son espace de travail, son matériel et ses ingrédients avant de commencer une réalisation culinaire. Elle permet de travailler efficacement, en sécurité et dans le respect des règles d'hygiène.</p>
+<h4>1. Préparer son environnement</h4><ul><li>Vérifier la propreté du plan de travail.</li><li>Nettoyer et désinfecter les surfaces si nécessaire.</li><li>Vérifier que le poste est correctement organisé.</li><li>S'assurer que les équipements fonctionnent.</li></ul>
+<h4>2. Préparer le matériel</h4><p>Réunir les ustensiles nécessaires : planches à découper, couteaux et ustensiles adaptés, récipients et bacs alimentaires, balance, thermomètre, matériel de cuisson. Le matériel doit être propre et adapté à son utilisation.</p>
+<h4>3. Préparer les denrées</h4><p>Sortir uniquement les ingrédients nécessaires à la préparation, et vérifier :</p><ul><li>leur état de conservation ;</li><li>leur date limite de consommation, lorsqu'elle est applicable ;</li><li>leur identification ;</li><li>leur température, lorsque cela est nécessaire.</li></ul><p>Les produits réfrigérés doivent rester au froid aussi longtemps que possible.</p>
+<h4>4. Organiser le travail</h4><p>Préparer les ingrédients et organiser les opérations dans un ordre logique.</p>
+<p class="pr-ex"><b>Exemple :</b> pour une blanquette de veau, on peut commencer par préparer les légumes, organiser les ingrédients de la garniture, puis préparer les éléments nécessaires à la cuisson.</p>
+<h4>5. Maintenir le poste propre</h4><ul><li>Éliminer régulièrement les déchets.</li><li>Nettoyer les ustensiles.</li><li>Séparer les opérations contaminantes des opérations propres.</li><li>Se laver les mains aux moments appropriés.</li></ul>
+<h4>6. Ranger et nettoyer le poste</h4><ul><li>Ranger les denrées.</li><li>Identifier les produits conservés.</li><li>Nettoyer et désinfecter le matériel et les surfaces selon le plan de nettoyage.</li><li>Évacuer les déchets.</li></ul>
+<p class="pr-key"><b>Objectif :</b> disposer d'un poste fonctionnel, propre et sécurisé, permettant de réaliser les préparations dans de bonnes conditions.</p>`],
+["temp","Températures et stockage",`
+<p class="pr-def"><b>Définition :</b> la maîtrise des températures consiste à conserver, transporter, préparer et servir les aliments à des températures adaptées afin de limiter le développement des micro-organismes dangereux.</p>
+<p>La chaîne du froid doit être respectée pour les denrées qui nécessitent une conservation réfrigérée ou congelée. En France, les températures réglementaires dépendent de la nature des produits. Les températures indiquées par le fabricant doivent également être respectées lorsqu'elles sont applicables (Légifrance).</p>
+<h4>A. Les températures de conservation au froid</h4>
+<div class="tbl-wrap"><table class="pr-t"><thead><tr><th>Catégorie de denrées</th><th>Température maximale</th></tr></thead><tbody>
+<tr><td>Viandes hachées</td><td>+2 °C</td></tr><tr><td>Poissons frais</td><td>+2 °C</td></tr><tr><td>Viandes de volailles</td><td>+4 °C</td></tr><tr><td>Viandes en morceaux</td><td>+4 °C</td></tr><tr><td>Viandes de gros et carcasses entières d'ongulés</td><td>+7 °C</td></tr><tr><td>Abats d'ongulés</td><td>+3 °C</td></tr><tr><td>Préparations culinaires élaborées à l'avance</td><td>+3 °C</td></tr><tr><td>Autres denrées très périssables</td><td>+4 °C</td></tr><tr><td>Autres denrées périssables</td><td>+8 °C</td></tr><tr><td>Glaces et crèmes glacées</td><td>−18 °C</td></tr><tr><td>Autres denrées congelées</td><td>−12 °C</td></tr></tbody></table></div>
+<p>Ces valeurs sont issues de l'annexe I de l'arrêté du 21 décembre 2009. Elles correspondent aux températures maximales applicables aux catégories indiquées, et non à une température universelle pour toutes les denrées.</p>
+<p class="pr-warn"><b>Attention :</b> les températures de stockage ne sont pas interchangeables. Il faut toujours vérifier la catégorie du produit, les indications du fabricant et les dispositions particulières applicables.</p>
+<h4>B. Le stockage des denrées</h4>
+<p><b>Dans une chambre froide positive :</b> respecter la température adaptée aux produits ; séparer les produits crus des préparations cuites et prêtes à consommer ; protéger les denrées ; utiliser des contenants propres et adaptés ; identifier les produits entamés et les préparations ; ne pas surcharger les équipements au point d'empêcher la circulation de l'air froid.</p>
+<p><b>Dans un congélateur :</b> respecter la température de conservation indiquée ; maintenir les produits congelés ; protéger les denrées contre les contaminations ; identifier les produits et contrôler leur durée de conservation.</p>
+<p><b>Dans la réserve sèche :</b> local propre, sec et adapté ; protéger contre l'humidité et les nuisibles ; ne pas poser les denrées directement sur le sol ; séparer les produits alimentaires des produits d'entretien.</p>
+<h4>C. Les méthodes FIFO et FEFO</h4>
+<div class="pr-two"><div class="pr-box"><b>FIFO — First In, First Out</b><p>Premier entré, premier sorti : le produit reçu en premier est utilisé en premier, lorsque les conditions de conservation et les dates le permettent.</p></div>
+<div class="pr-box"><b>FEFO — First Expired, First Out</b><p>Premier périmé, premier sorti : le produit dont la date limite arrive en premier est utilisé en priorité, s'il est encore propre à la consommation.</p></div></div>
+<p>En pratique, la méthode FEFO permet de mieux gérer les dates de péremption.</p>
+<h4>D. Le contrôle des températures</h4>
+<p>Organisé selon le plan de maîtrise sanitaire, il peut comprendre : le contrôle des enceintes frigorifiques, des températures des denrées à réception, de la température des aliments pendant certaines étapes, l'enregistrement des résultats et les actions correctives en cas d'anomalie.</p>
+<p class="pr-ex"><b>Exemple :</b> si une chambre froide présente une température anormale, il faut évaluer la situation, vérifier la température des denrées concernées et prendre les mesures adaptées. Il ne suffit pas de régler le thermostat en ignorant les aliments qui ont pu subir une rupture de la chaîne du froid.</p>`],
+["reception","Contrôle à la réception",`
+<p class="pr-def"><b>Définition :</b> vérifier que les produits livrés correspondent à la commande et qu'ils peuvent être acceptés dans l'établissement dans des conditions sanitaires satisfaisantes. C'est la première étape du contrôle des denrées après leur livraison.</p>
+<div class="tbl-wrap"><table class="pr-t"><thead><tr><th>Point de contrôle</th><th>Ce qu'il faut vérifier</th></tr></thead><tbody>
+<tr><td>Le fournisseur</td><td>Identité et conformité du fournisseur</td></tr><tr><td>La commande</td><td>Nature et quantité des produits</td></tr><tr><td>L'emballage</td><td>Absence de détérioration ou de fuite</td></tr><tr><td>L'aspect</td><td>Absence d'altération apparente</td></tr><tr><td>La température</td><td>Respect de la température applicable</td></tr><tr><td>Les dates</td><td>DLC ou DDM, selon le produit</td></tr><tr><td>La traçabilité</td><td>Lot, étiquetage et documents disponibles</td></tr><tr><td>La conformité</td><td>Correspondance entre le produit livré et le produit commandé</td></tr></tbody></table></div>
+<p class="pr-ex"><b>Exemple :</b> un fournisseur livre des filets de poulet réfrigérés. On vérifie l'état des emballages, la température du produit, la date limite de consommation, l'identification du produit et du lot, et la conformité de la livraison. En cas d'anomalie, on isole le produit et on décide de son acceptation ou de son refus selon les procédures de l'établissement.</p>
+<p class="pr-key"><b>À retenir :</b> une marchandise ne doit pas être acceptée uniquement parce qu'elle a été livrée par un fournisseur habituel.</p>`],
+["traca","Traçabilité des denrées",`
+<p class="pr-def"><b>Définition :</b> la traçabilité est la capacité de retrouver l'origine d'une denrée alimentaire, son parcours et, lorsque cela est nécessaire, sa destination. Elle permet de retrouver les produits concernés lorsqu'un problème sanitaire est identifié (Eur-Lex).</p>
+<h4>A. À la réception</h4>
+<p>Pour chaque livraison, il faut pouvoir retrouver : le nom du fournisseur, la date de réception, la désignation du produit, la quantité reçue, le numéro de lot (lorsqu'il est applicable), la DLC ou la DDM, les informations de température si le contrôle est nécessaire, le bon de livraison ou la facture. Ces informations sont conservées selon les obligations applicables et les procédures de l'établissement.</p>
+<h4>B. Pendant la préparation</h4>
+<p>Lorsqu'un produit est ouvert, transformé ou utilisé dans une préparation, il faut pouvoir gérer son identification et sa conservation.</p>
+<p class="pr-ex"><b>Exemple :</b> après ouverture d'une brique de crème fraîche, il faut pouvoir identifier le produit et connaître la durée de conservation applicable. Si cette crème sert à une sauce, on respecte aussi les règles de conservation de la sauce obtenue.</p>
+<h4>C. En cas de problème sanitaire</h4>
+<p>Un fournisseur annonce le rappel d'un lot de fromage. Grâce à la traçabilité, le restaurant doit pouvoir rechercher si ce lot a été réceptionné, s'il est encore en stock, s'il a été utilisé dans une préparation, et quelles mesures prendre.</p>
+<p class="pr-key"><b>Objectif :</b> identifier rapidement les produits concernés et empêcher leur utilisation lorsqu'ils présentent un risque.</p>`],
+["etiquettes","Étiquetage",`
+<p class="pr-def"><b>Définition :</b> l'étiquetage interne consiste à apposer sur un produit ou un contenant une étiquette permettant de l'identifier et de connaître les informations nécessaires à sa conservation et à son utilisation. Il facilite la gestion des stocks, la traçabilité et le respect des règles d'hygiène.</p>
+<h4>A. Les informations à inscrire</h4>
+<div class="tbl-wrap"><table class="pr-t"><thead><tr><th>Information</th><th>Utilité</th></tr></thead><tbody>
+<tr><td>Nom du produit</td><td>Identifier la denrée</td></tr><tr><td>Date d'ouverture</td><td>Savoir quand l'emballage a été ouvert</td></tr><tr><td>Date de fabrication</td><td>Identifier la date de réalisation d'une préparation</td></tr><tr><td>Date limite d'utilisation</td><td>Connaître la limite d'utilisation définie</td></tr><tr><td>Température de conservation</td><td>Connaître les conditions de stockage</td></tr><tr><td>Numéro de lot</td><td>Assurer la traçabilité, lorsqu'il est applicable</td></tr><tr><td>Nom ou initiales du préparateur</td><td>Identifier la personne responsable</td></tr></tbody></table></div>
+<p>Toutes ces mentions ne sont pas obligatoires sur chaque étiquette interne : elles dépendent du produit, de son conditionnement et des règles applicables.</p>
+<h4>B. Exemple d'étiquette pour une préparation maison</h4>
+<div class="pr-label"><div class="pr-label-h">SAUCE BÉCHAMEL</div>
+<dl><div><dt>Date de fabrication</dt><dd>26/09/2026</dd></div><div><dt>Heure de fabrication</dt><dd>10 h 30</dd></div><div><dt>Température de conservation</dt><dd>Selon le protocole applicable</dd></div><div><dt>DLC interne</dt><dd>Selon la durée de vie validée</dd></div><div><dt>Responsable</dt><dd>Initiales du préparateur</dd></div></dl></div>
+<p>La date limite d'utilisation ne doit pas être choisie arbitrairement : elle dépend de la nature de la préparation, de son procédé de fabrication, de ses conditions de conservation et des règles sanitaires applicables.</p>
+<h4>C. DLC et DDM</h4>
+<div class="pr-two"><div class="pr-box"><b>DLC — date limite de consommation</b><p>« À consommer jusqu'au… ». Concerne les denrées microbiologiquement très périssables. Après cette date, le produit ne doit normalement plus être consommé.</p></div>
+<div class="pr-box"><b>DDM — date de durabilité minimale</b><p>« À consommer de préférence avant… ». Concerne surtout la qualité. Son dépassement ne rend pas automatiquement le produit dangereux, si la conservation a été respectée et l'emballage est intact.</p></div></div>
+<p class="pr-warn"><b>Attention :</b> après ouverture, les conditions et la durée de conservation peuvent changer. Il faut respecter les indications du fabricant et les procédures applicables.</p>`],
+["cuisson","Cuisson, refroidissement et remise en température",`
+<p>Le contrôle des températures ne concerne pas seulement les chambres froides : il s'applique aussi aux étapes de préparation et de service.</p>
+<h4>A. La cuisson</h4><p>Elle doit être adaptée au produit. La température à cœur et la durée de cuisson sont des paramètres importants ; la température requise dépend de la nature de l'aliment, de son épaisseur, du procédé de cuisson et des dangers identifiés. Il ne faut pas appliquer une température unique à toutes les préparations.</p>
+<h4>B. Le refroidissement rapide</h4><p>Une préparation chaude à conserver au froid doit être refroidie rapidement. En restauration collective, la température à cœur ne doit pas rester entre <b>+63 °C et +10 °C pendant plus de deux heures</b>, sauf dispositif différent justifié par une analyse des dangers validée. Après refroidissement, les préparations sont conservées entre <b>0 °C et +3 °C</b> (Légifrance).</p>
+<p class="pr-ex"><b>Exemple :</b> après la cuisson d'un grand volume de sauce, on ne la laisse pas refroidir lentement à température ambiante : on utilise une méthode adaptée, par exemple une cellule de refroidissement rapide.</p>
+<h4>C. La remise en température</h4><p>En restauration collective, la préparation ne doit pas rester <b>plus d'une heure entre +10 °C et la température de remise au consommateur</b>, qui ne peut normalement pas être inférieure à <b>+63 °C</b>, sous réserve des dérogations prévues (Légifrance).</p>
+<h4>D. Le maintien au chaud</h4><p>En restauration collective, la température de référence est généralement de <b>+63 °C minimum</b>, selon les dispositions applicables.</p>
+<p class="pr-key"><b>À distinguer :</b> température de cuisson, de refroidissement, de remise en température et de maintien au chaud : quatre opérations différentes, avec des objectifs distincts.</p>`],
+["personnel","Hygiène du personnel",`
+<p class="pr-def"><b>Définition :</b> l'ensemble des pratiques qui évitent que les personnes travaillant en cuisine contaminent les aliments.</p>
+<h4>La tenue professionnelle</h4><p>Propre et adaptée : veste ou tenue de cuisine, pantalon professionnel, chaussures adaptées, coiffe maîtrisant les cheveux.</p>
+<h4>Le lavage des mains est indispensable</h4><ul><li>À la prise de poste.</li><li>Après être allé aux toilettes.</li><li>Après avoir manipulé des déchets.</li><li>Après des aliments crus, avant des aliments prêts à consommer.</li><li>Après s'être mouché.</li><li>Après toute opération susceptible de contaminer les mains.</li></ul>
+<h4>Les comportements à éviter</h4><ul><li>Manipuler les aliments avec des mains sales.</li><li>Porter des bijoux susceptibles de contaminer les aliments.</li><li>Manger au-dessus des préparations.</li><li>Tousser ou éternuer au-dessus des denrées.</li><li>Manipuler des aliments lorsque son état de santé présente un risque.</li></ul>
+<p class="pr-key"><b>À retenir :</b> le port de gants ne remplace pas le lavage des mains. Les personnes manipulant les aliments doivent recevoir des instructions ou une formation adaptées (Eur-Lex).</p>`],
+["nettoyage","Nettoyage et désinfection",`
+<div class="pr-two"><div class="pr-box"><b>Nettoyer</b><p>Éliminer les salissures et les résidus présents sur une surface.</p></div><div class="pr-box"><b>Désinfecter</b><p>Réduire les micro-organismes présents sur une surface à un niveau compatible avec la sécurité sanitaire.</p></div></div>
+<p>Les deux opérations sont complémentaires.</p>
+<h4>Les étapes</h4><ol class="pr-flow"><li>Débarrasser la surface des déchets et des résidus</li><li>Nettoyer avec le produit adapté</li><li>Rincer si nécessaire</li><li>Appliquer le désinfectant si le protocole le prévoit</li><li>Respecter le temps de contact</li><li>Rincer si les instructions l'exigent</li><li>Laisser sécher ou sécher selon la méthode prévue</li></ol>
+<h4>Les équipements concernés</h4><p>Plans de travail, planches à découper, couteaux et ustensiles, fourneaux, fours, chambres froides, réfrigérateurs, poignées et surfaces fréquemment touchées, matériel de préparation.</p>
+<p class="pr-key"><b>Le PND (plan de nettoyage et de désinfection)</b> précise les zones et équipements, les produits, les méthodes, les fréquences et les responsabilités. Les produits d'entretien sont stockés séparément des denrées (Eur-Lex).</p>`],
+["croisees","Contaminations croisées",`
+<p class="pr-def"><b>Définition :</b> une contamination croisée se produit lorsqu'un danger est transféré d'un aliment, d'une surface, d'un ustensile ou d'une personne vers un autre aliment. Les dangers peuvent être microbiologiques, chimiques ou physiques.</p>
+<div class="tbl-wrap"><table class="pr-t"><thead><tr><th>Situation</th><th>Risque</th></tr></thead><tbody>
+<tr><td>Découper du poulet cru puis une salade sur la même planche sans nettoyage adapté</td><td>Microbiologique</td></tr><tr><td>Stocker une viande crue au-dessus d'une préparation prête à consommer</td><td>Par écoulement</td></tr><tr><td>Ranger un produit d'entretien avec les aliments</td><td>Chimique</td></tr><tr><td>Laisser tomber un morceau de plastique dans une préparation</td><td>Physique</td></tr></tbody></table></div>
+<h4>Les mesures de prévention</h4><ul><li>Séparer les produits crus et les produits cuits.</li><li>Utiliser du matériel adapté aux différentes opérations.</li><li>Nettoyer et désinfecter les surfaces.</li><li>Se laver les mains.</li><li>Protéger les préparations.</li><li>Ranger correctement les denrées.</li><li>Éviter les contacts entre aliments et déchets.</li></ul>
+<p class="pr-key">La prévention des contaminations croisées est l'un des objectifs principaux de la marche en avant.</p>`],
+["allergenes","Gestion des allergènes",`
+<p class="pr-def"><b>Définition :</b> un allergène alimentaire est une substance susceptible de provoquer une réaction allergique chez une personne sensibilisée. En restauration, les professionnels doivent pouvoir informer les clients de la présence des allergènes réglementés dans les plats.</p>
+<h4>Les 14 catégories réglementées</h4>
+<ul class="pr-chips"><li>Céréales contenant du gluten</li><li>Crustacés</li><li>Œufs</li><li>Poissons</li><li>Arachides</li><li>Soja</li><li>Lait</li><li>Fruits à coque</li><li>Céleri</li><li>Moutarde</li><li>Graines de sésame</li><li>Sulfites</li><li>Lupin</li><li>Mollusques</li></ul>
+<h4>Les bonnes pratiques</h4><ul><li>Connaître les ingrédients de chaque recette.</li><li>Vérifier les étiquettes des produits achetés.</li><li>Tenir à jour les informations sur les allergènes.</li><li>Éviter les contaminations croisées.</li><li>Nettoyer correctement le matériel.</li><li>Informer le client de manière fiable.</li></ul>
+<p class="pr-ex"><b>Exemple :</b> une sauce contenant de la crème doit être identifiée comme contenant du lait. Si une recette change, les informations sur les allergènes doivent être vérifiées et mises à jour. Dans Mets, l'onglet Allergènes et chaque fiche recette les calculent à partir des ingrédients.</p>`],
+["dechets","Déchets et nuisibles",`
+<h4>A. Les déchets</h4><p>Évacués régulièrement pour éviter les contaminations, les mauvaises odeurs, l'attraction des nuisibles et l'encombrement des postes. Les poubelles doivent être adaptées, entretenues et vidées régulièrement. On ne reprend pas une préparation après avoir manipulé des déchets sans se laver les mains.</p>
+<h4>B. La lutte contre les nuisibles</h4><p>Insectes et rongeurs peuvent contaminer les denrées et les surfaces. Mesures préventives : nettoyage régulier, protection des denrées, fermeture des ouvertures si nécessaire, contrôle des zones de stockage, surveillance des traces de nuisibles, mesures correctives en cas de présence constatée.</p>
+<p class="pr-key">La gestion des nuisibles et des déchets fait partie des éléments examinés lors des contrôles sanitaires (Ministère de l'Agriculture).</p>`],
+["haccp","PMS et méthode HACCP",`
+<h4>A. Le PMS — Plan de maîtrise sanitaire</h4>
+<p class="pr-def"><b>Définition :</b> ensemble de documents et de procédures qui décrit les mesures mises en place par un établissement pour garantir l'hygiène et la sécurité sanitaire des aliments.</p>
+<p>Il comprend notamment : les bonnes pratiques d'hygiène, les procédures de nettoyage et de désinfection, la gestion des températures, la traçabilité, la gestion des non-conformités, les procédures fondées sur les principes HACCP, les documents d'enregistrement et d'autocontrôle. Le PMS doit être adapté à l'activité réelle de l'établissement.</p>
+<h4>B. La méthode HACCP</h4>
+<p><b>Hazard Analysis Critical Control Point</b> : analyse des dangers et maîtrise des points critiques. Elle permet d'identifier les dangers susceptibles de compromettre la sécurité des aliments et de définir les mesures pour les maîtriser. Elle repose sur sept principes :</p>
+<ol class="pr-flow"><li>Analyser les dangers</li><li>Déterminer les points critiques pour leur maîtrise</li><li>Fixer les limites critiques</li><li>Mettre en place une surveillance</li><li>Définir les actions correctives</li><li>Vérifier l'efficacité du système</li><li>Constituer les documents et enregistrements</li></ol>
+<p>Ces principes sont établis par le règlement européen relatif à l'hygiène des denrées alimentaires (Eur-Lex).</p>`],
+["documents","Documents et contrôles",`
+<p>Les règles d'hygiène doivent être appliquées, mais il faut aussi pouvoir démontrer qu'elles le sont. Les documents varient selon l'établissement et son plan de maîtrise sanitaire.</p>
+<div class="tbl-wrap"><table class="pr-t"><thead><tr><th>Document ou registre</th><th>Fonction</th></tr></thead><tbody>
+<tr><td>Fiches de réception</td><td>Enregistrer les contrôles des marchandises</td></tr><tr><td>Relevés de températures</td><td>Suivre les températures des équipements et des denrées</td></tr><tr><td>Étiquettes internes</td><td>Identifier les produits ouverts et les préparations</td></tr><tr><td>Fiches de traçabilité</td><td>Retrouver l'origine et le parcours des denrées</td></tr><tr><td>Plan de nettoyage et de désinfection</td><td>Organiser l'entretien des locaux et du matériel</td></tr><tr><td>Fiches de contrôle du nettoyage</td><td>Enregistrer les opérations réalisées</td></tr><tr><td>Registre des anomalies</td><td>Suivre les non-conformités et les actions correctives</td></tr><tr><td>Documents fournisseurs</td><td>Identifier les fournisseurs et les produits livrés</td></tr><tr><td>Fiches allergènes</td><td>Identifier les allergènes présents dans les préparations</td></tr><tr><td>Documents de formation</td><td>Justifier les formations et instructions du personnel</td></tr></tbody></table></div>
+<p>La liste exacte dépend de l'activité, des risques et des obligations de l'établissement. Les contrôles officiels peuvent porter sur les températures, la traçabilité, les allergènes, l'entretien des locaux, la formation et la gestion des déchets.</p>`],
+["references","Références réglementaires",`
+<ul><li><b>Règlement européen CE n° 852/2004</b> relatif à l'hygiène des denrées alimentaires : hygiène des locaux, bonnes pratiques et principes HACCP.</li>
+<li><b>Arrêté du 21 décembre 2009</b> : règles sanitaires et températures de conservation des denrées.</li>
+<li><b>Ministère de l'Agriculture</b> — La sécurité sanitaire dans les restaurants : points examinés lors des contrôles.</li>
+<li><b>Service-Public</b> — Règles d'hygiène dans la restauration : obligations des professionnels.</li></ul>
+<p class="pr-key"><b>L'idée essentielle :</b> une cuisine professionnelle doit être organisée de manière à maîtriser les dangers sanitaires à toutes les étapes, de la réception des marchandises jusqu'au service. Marche en avant, mise en place, contrôle des températures, traçabilité, étiquetage et nettoyage sont des moyens complémentaires pour atteindre cet objectif.</p>
+<p class="hint">Ce résumé est un support de formation. Les valeurs et obligations évoluent : vérifiez les textes en vigueur et le plan de maîtrise sanitaire de votre établissement.</p>`]
+];
+/* Résumé en 17 principes, chacun renvoie à sa section */
+const PRINC_SUMMARY = [
+ ["Marche en avant","Organiser la progression des aliments pour éviter les contaminations croisées.","marche"],
+ ["Installation du poste","Préparer le matériel, les ingrédients et l'espace de travail avant la réalisation.","poste"],
+ ["Hygiène du personnel","Appliquer les règles d'hygiène individuelle pour éviter la contamination des aliments.","personnel"],
+ ["Contrôle à la réception","Vérifier la conformité sanitaire des marchandises livrées.","reception"],
+ ["Maîtrise des températures","Conserver et préparer les aliments à des températures adaptées.","temp"],
+ ["Chaîne du froid","Maintenir les denrées réfrigérées et congelées aux températures requises.","temp"],
+ ["Stockage des denrées","Ranger les produits dans des conditions adaptées à leur nature.","temp"],
+ ["Rotation des stocks","Utiliser les produits selon leur ancienneté et leurs dates (FIFO, FEFO).","temp"],
+ ["Traçabilité","Pouvoir retrouver l'origine et le parcours des denrées.","traca"],
+ ["Étiquetage","Identifier les produits et les informations nécessaires à leur conservation.","etiquettes"],
+ ["Nettoyage et désinfection","Éliminer les salissures et maîtriser les contaminations microbiologiques.","nettoyage"],
+ ["Contaminations croisées","Empêcher le transfert de dangers entre aliments, surfaces et matériel.","croisees"],
+ ["Gestion des allergènes","Identifier et communiquer les allergènes présents dans les préparations.","allergenes"],
+ ["Gestion des déchets","Évacuer les déchets dans des conditions évitant les contaminations.","dechets"],
+ ["Lutte contre les nuisibles","Prévenir et maîtriser la présence d'insectes et de rongeurs.","dechets"],
+ ["HACCP","Analyser les dangers et définir les mesures permettant de les maîtriser.","haccp"],
+ ["PMS","Formaliser l'ensemble des mesures d'hygiène et de sécurité sanitaire.","haccp"]
+];
+function viewPrinciples(){
+  const toc = PRINC_SECTIONS.map(([id,t],k)=>`<li><button type="button" data-a="pr-go" data-id="${id}"><span>${k+1}</span>${esc(t)}</button></li>`).join("");
+  app.innerHTML = `
+    <div class="page-head"><h2>Principes de la cuisine professionnelle</h2><button class="btn ghost no-print" data-a="print">Imprimer</button></div>
+    <section class="pr-intro card" id="pr-top">
+      <p class="pr-goal"><b>Objectif général :</b> garantir la sécurité sanitaire des aliments, protéger le consommateur et assurer une organisation efficace de la cuisine.</p>
+      <p>En cuisine professionnelle, le travail ne consiste pas uniquement à préparer des plats : il faut aussi garantir la sécurité sanitaire, l'organisation du travail, le respect des températures, la traçabilité des produits et l'hygiène du personnel et des locaux. Ces règles concernent les restaurants, les cuisines collectives, les hôtels et la restauration commerciale.</p>
+      <h3>Résumé : les principes à retenir</h3>
+      <div class="pr-sum">${PRINC_SUMMARY.map(([t,d,id],k)=>`<button type="button" class="pr-sum-i" data-a="pr-go" data-id="${id}"><span class="pr-n">${k+1}</span><b>${esc(t)}</b><span>${esc(d)}</span></button>`).join("")}</div>
+      <h3>Sommaire</h3>
+      <ol class="pr-toc">${toc}</ol>
+    </section>
+    ${PRINC_SECTIONS.map(([id,t,html],k)=>`<section class="card pr-sec" id="pr-${id}">
+      <h3 class="pr-h"><span class="pr-n">${k+1}</span>${esc(t)}</h3>
+      <div class="pr-body">${html}</div>
+      <p class="pr-back no-print"><button type="button" class="linkbtn" data-a="pr-go" data-id="top">↑ Retour au sommaire</button></p></section>`).join("")}`;
+}
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-a='pr-go']"); if(!el) return;
+  const t = document.getElementById("pr-"+el.dataset.id); if(!t) return;
+  t.scrollIntoView({behavior:"smooth", block:"start"});
+  t.classList.remove("pr-flash"); void t.offsetWidth; t.classList.add("pr-flash");
+});
+
 /* ========= Interface ========= */
 let ui = {view:"recipes", recipeId:null, target:{}, q:""};
 const $ = s => document.querySelector(s);
@@ -1850,13 +2072,14 @@ const ICONS={
   allergens:'<path class="g" d="M12 2.6c.8 0 1.5.4 1.9 1.1l8.1 14.1a2.2 2.2 0 0 1-1.9 3.3H3.9A2.2 2.2 0 0 1 2 17.8L10.1 3.7c.4-.7 1.1-1.1 1.9-1.1z"/><rect class="a" x="10.8" y="8.2" width="2.4" height="6.6" rx="1.2"/><circle class="a" cx="12" cy="17.3" r="1.4"/>',
   lexicon:'<path class="g" d="M2.3 5.2c3.2-1.5 6.4-1.3 9.2.5V21c-2.8-1.7-6-1.9-9.2-.5z"/><path class="g" d="M21.7 5.2c-3.2-1.5-6.4-1.3-9.2.5V21c2.8-1.7 6-1.9 9.2-.5z"/><path class="a" d="M11.2 5.4h1.6V21h-1.6z"/><path class="c" d="M5 9.5c1.6-.5 2.9-.4 4.2.2M15 9.7c1.3-.6 2.6-.7 4.2-.2"/>',
   history:'<path class="g" d="M6.8 2.5h11A2.7 2.7 0 0 1 20.5 5.2v11.3H9.3v3a2.3 2.3 0 1 1-4.6 0V4.6a2.1 2.1 0 0 1 2.1-2.1z"/><path class="a" d="M9.3 16.5h12.2v1.8a3.2 3.2 0 0 1-3.2 3.2H7a2.3 2.3 0 0 0 2.3-2.3z"/><path class="c" d="M9.3 7h7.5M9.3 10.5h5.5"/>',
+  principles:'<rect class="g" x="4" y="3.5" width="16" height="18.5" rx="3"/><path class="a" d="M8.5 2h7a1.5 1.5 0 0 1 1.5 1.5V6H7V3.5A1.5 1.5 0 0 1 8.5 2z"/><path class="c" d="M8 13.2l2.6 2.6L16.2 10"/>',
   settings:'<rect class="g" x="2.5" y="5.8" width="19" height="2.8" rx="1.4"/><rect class="g" x="2.5" y="15.4" width="19" height="2.8" rx="1.4"/><circle class="a" cx="15.5" cy="7.2" r="3.2"/><circle class="a" cx="8.5" cy="16.8" r="3.2"/>'
 };
 function renderNav(){
-  const tabs=[["recipes","Recettes"],["notebook","Carnet"],["plan","Semaine"],["ingredients","Ingrédients"],["allergens","Allergènes"],["lexicon","Lexique"],["history","Histoire"],["settings","Réglages"]];
+  const tabs=[["recipes","Recettes"],["notebook","Carnet"],["plan","Semaine"],["ingredients","Ingrédients"],["allergens","Allergènes"],["lexicon","Lexique"],["history","Histoire"],["principles","Principes"],["settings","Réglages"]];
   const on = ui.view==="recipe" ? (ui.from==="plan" ? "plan" : ui.from==="idea" ? "notebook" : "recipes") : ui.view==="idea" ? "notebook" : ui.view==="conv" ? "ingredients" : ui.view==="article" ? "history" : ui.view;
   $("#nav").innerHTML = tabs.map(([k,l])=>
-    `<button class="tab" data-a="nav" data-v="${k}"${on===k?' aria-current="page"':""}><span class="tw"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></span><span>${l}</span></button>`
+    `<button class="tab" data-a="nav" data-v="${k}"${on===k?' aria-current="page"':""}><span class="tw"><svg class="ti" viewBox="0 0 24 24" aria-hidden="true">${ICONS[k]}</svg></span><span class="tl">${l}</span><span class="tls" aria-hidden="true">${({ingredients:"Ingréd.",allergens:"Allerg.",principles:"Principes"})[k]||l}</span></button>`
   ).join("");
   updateUsbBadge();
 }
@@ -1875,6 +2098,7 @@ function render(){
   else if(ui.view==="lexicon") viewLexicon();
   else if(ui.view==="history") viewHistory();
   else if(ui.view==="article") viewArticle();
+  else if(ui.view==="principles") viewPrinciples();
   else viewSettings();
   window.scrollTo(0,0);
 }

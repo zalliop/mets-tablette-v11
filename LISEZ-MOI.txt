@@ -189,3 +189,14 @@ NOUVEAU (version 22) - CALCUL EN LITRES OU EN KILOS
 - Unites : L, cl, ml, kg, g. Changer d'unite convertit sans recalculer.
 - Une recette en litres s'utilise directement dans une autre (ex. 50 cl de
   fumet dans une sauce).
+
+NOUVEAU (version 23) - ONGLET PRINCIPES
+- Nouvel onglet "Principes" : les principes de la cuisine professionnelle.
+- En haut : l'objectif general, le resume des 17 principes et le sommaire.
+  Chaque element est cliquable et amene directement a la section.
+- 15 sections : marche en avant, installation du poste, temperatures et
+  stockage (FIFO/FEFO), reception, tracabilite, etiquetage (DLC/DDM),
+  cuisson/refroidissement/remise en temperature, hygiene du personnel,
+  nettoyage et desinfection, contaminations croisees, allergenes, dechets et
+  nuisibles, PMS et HACCP, documents et controles, references.
+- "Retour au sommaire" a la fin de chaque section. Bouton Imprimer.
